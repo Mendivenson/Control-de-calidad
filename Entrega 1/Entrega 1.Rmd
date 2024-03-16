@@ -23,17 +23,38 @@ header-includes:
   - \renewcommand{\theenumi}{\alph{enumi}}
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+def.chunk.hook  <- knitr::knit_hooks$get("chunk")
+knitr::knit_hooks$set(chunk = function(x, options) {
+  x <- def.chunk.hook(x, options)
+  ifelse(options$size != "normalsize", paste0("\n \\", options$size,"\n\n", x, "\n\n \\normalsize"), x)
+})
+```
+
 ## Ejercicio 1
 
 Sea $X \sim N(\mu, \sigma)$ una característica de calidad. Mediante simulaciones Mediante simulaciones, establezca el comportamiento del *ARL* (en control y fuera de él) de las Cartas $R$ y $S$ para observaciones normales con límites $3\sigma$ y muestras de tamaño (a) $n = 3$ y (b) $n = 10$ ¿Qué regularidades observa?
 
-> Para la implementación de la solución, se creará en R una función que nos permita simular cuantás veces querramos el momento en un proceso da una alerta (bien sea verdadera o falsa) con argumentos que nos permitan modificar tanto el tamaño de muestra $n$ como los límites de la carta de control y su línea central. La función se define como sigue:
+> \small Para la implementación de la solución, se creará en R una función que nos permita simular cuantás veces querramos el momento en que un proceso da una alerta (bien sea verdadera o falsa) con argumentos que nos permitan modificar tanto el tamaño de muestra $n$ como los límites de la carta de control y su línea central para cada una de las cartas. Las funciones se definen como sigue:
+
+```{r Funciones ejercicio 1,code = readLines('Funciones/RunLength.R'), size = 'scriptsize'}
+```
+
+> \small Tenga en cuenta que la salida de la función es un vector con los valores de los tiempos en que se detecto una señal dados los límites centrales correspondientes al proceso en control (El proceso en control se definió con $\mu = 0$ y $\sigma = 1$ y además para cada uno se tomaron m = 1000 muestras de tiempos en que se generó una alerta). Los resultados para diferentes corrimientos de la línea central se encuentran condensados en la tabla a continuación:
+
+```{r echo = FALSE}
+library(knitr)
+# library(kableExtra)
+resultadosP1 = read.csv('Resultados/Punto 1', row.names = 1)
+colnames(resultadosP1) = gsub("k....", "k = ",colnames(resultadosP1))
+colnames(resultadosP1)[1] = 'Corrimientos'
+kable(resultadosP1, format = 'latex')
+```
 
 
 
-> Los resultados para diferentes corrimientos de la línea central se encuentran condensados en la tabla a continuación:
-
-> Como podemos observar $\cdots$
+> \small Como podemos observar $\cdots$
 
 
 ## Ejercicio 2
