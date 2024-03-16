@@ -1,0 +1,134 @@
+\documentclass{article}
+
+\usepackage{arxiv}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{lmodern}        % https://github.com/rstudio/rticles/issues/343
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{graphicx}
+
+\title{Control Estadístico de Calidad (Entrega 1)}
+
+\author{
+    Michel Mendivenson Barragán Zabala
+   \\
+    Departamento de Estadística \\
+    Universidad Nacional de Colombia \\
+   \\
+  \texttt{\href{mailto:mbarraganz@unal.edu.co}{\nolinkurl{mbarraganz@unal.edu.co}}} \\
+   \And
+    Juan Sebastián Huertas Pirajan
+   \\
+    Departamento de Estadística \\
+    Universidad Nacional de Colombia \\
+   \\
+  \texttt{\href{mailto:juhuertasp@unal.edu.co}{\nolinkurl{juhuertasp@unal.edu.co}}} \\
+   \And
+    Diego Andres Paez Molina
+   \\
+    Departamento de Estadística \\
+    Universidad Nacional de Colombia \\
+   \\
+  \texttt{\href{mailto:dpaezm@unal.edu.co}{\nolinkurl{dpaezm@unal.edu.co}}} \\
+  }
+
+
+% tightlist command for lists without linebreak
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+
+
+\setcounter{secnumdepth}{0}
+\renewenvironment{abstract}{}{}
+\renewcommand{\theenumi}{\alph{enumi}}
+\begin{document}
+\maketitle
+
+
+\begin{abstract}
+
+\end{abstract}
+
+
+\hypertarget{ejercicio-1}{%
+\subsection{Ejercicio 1}\label{ejercicio-1}}
+
+Sea \(X \sim N(\mu, \sigma)\) una característica de calidad. Mediante
+simulaciones Mediante simulaciones, establezca el comportamiento del
+\emph{ARL} (en control y fuera de él) de las Cartas \(R\) y \(S\) para
+observaciones normales con límites \(3\sigma\) y muestras de tamaño (a)
+\(n = 3\) y (b) \(n = 10\) ¿Qué regularidades observa?
+
+\begin{quote}
+Para la implementación de la solución, se creará en R una función que
+nos permita simular cuantás veces querramos el momento en un proceso da
+una alerta (bien sea verdadera o falsa) con argumentos que nos permitan
+modificar tanto el tamaño de muestra \(n\) como los límites de la carta
+de control y su línea central. La función se define como sigue:
+\end{quote}
+
+\begin{quote}
+Los resultados para diferentes corrimientos de la línea central se
+encuentran condensados en la tabla a continuación:
+\end{quote}
+
+\begin{quote}
+Como podemos observar \(\cdots\)
+\end{quote}
+
+\hypertarget{ejercicio-2}{%
+\subsection{Ejercicio 2}\label{ejercicio-2}}
+
+Sea \(X \sim N(\mu, \sigma)\) una característica de calidad. Se sabe que
+los valores objetivo de los parámetros del proceso son \(\mu = \mu_0\) y
+\(\sigma = \sigma_0\). Construir las curvas OC de la carta \(S^2\) con
+límites de probabilidad. Interpretar los resultados
+
+\hypertarget{ejercicio-3}{%
+\subsection{Ejercicio 3}\label{ejercicio-3}}
+
+Sea \(X \sim N(\mu_0, \sigma_0)\) una característica de calidad.
+Construya la carta \(\bar{X}\) para el monitoreo de la media del
+proceso. Genere 10 muestras de tamaño \(n\) provenientes de \(X\), de
+tal modo que la media muestral de ninguna de ellas caiga fuera de los
+límites de control. A partir del undécimo momento de monitoreo se pide
+generar muestras del mismo tamaño \(n\) provenientes de una distribución
+normal con media \(\mu_1 = \mu_0 + k\sigma_0\) y \(\sigma_1 = \sigma_0\)
+(con \(k = 1,0\)) hasta que la carta emita una señal por primera vez. Si
+se asume que el proceso caracterizado por \(X\) es estable y que se
+desconoce el momento en el cual se produjo el incremento en el nivel
+medio, ¿en qué muestra ocurrió el cambio en la media del proceso más
+probablemente?
+
+\hypertarget{ejercicio-4}{%
+\subsection{Ejercicio 4}\label{ejercicio-4}}
+
+Sea \(X \sim N(\mu_0, \sigma_0)\) una característica de calidad. Se
+pide:\\
+
+\begin{enumerate}
+  \item Mediante simulaciones, establezca el comportamiento del ARL de la Carta $\bar{X}$ con límites tres sigma para observaciones normales.
+  \item Genere 20 subgrupos racionales de tamaño $n = 3$ provenientes de $X$. Asúmase que el proceso es estable en cuanto a dispersión y con los subgrupos iniciales, construya la carta $\bar{X}$ como es habitual hasta verificar la estabilidad del proceso. Establezca el comportamiento del ARL para la carta que se obtiene del análisis de Fase I realizado.
+  \item Repetir lo indicado en el literal (b) con 50 subgrupos racionales de tamaño $n = 3$. Comente los resultados.
+\end{enumerate}
+
+\hypertarget{ejercicio-5}{%
+\subsection{Ejercicio 5}\label{ejercicio-5}}
+
+Calcular el ARL de la Carta \(\bar{X}\) mediante cadenas de Markov.
+Diseñar la carta con límites de control ubicados a tres desviaciones
+estándar de la media y dividiendo la región de control estadístico en
+franjas de ancho igual a una desviación estándar.
+
+\bibliographystyle{unsrt}
+\bibliography{}
+
+
+\end{document}
