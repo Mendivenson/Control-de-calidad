@@ -45,7 +45,7 @@ Sea $X \sim N(\mu, \sigma)$ una característica de calidad. Mediante simulacione
 
 ```{r echo = FALSE}
 library(knitr)
-# library(kableExtra)
+library(kableExtra)
 resultadosP1 = read.csv('Resultados/Punto 1', row.names = 1)
 colnames(resultadosP1) = gsub("k....", "k = ",colnames(resultadosP1))
 colnames(resultadosP1)[1] = 'Corrimientos'
