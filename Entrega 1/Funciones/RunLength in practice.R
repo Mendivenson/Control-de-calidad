@@ -1,7 +1,7 @@
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 source('RunLength.R')
 
-corrimientos = seq(from = 1, to = 4, by = 0.05)
+corrimientos = seq(from = 1, to = 3, by = 0.025)
 library(parallel)
 library(pbmcapply)
 cores = detectCores() - 1
