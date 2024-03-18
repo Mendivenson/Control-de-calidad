@@ -55,7 +55,7 @@ colnames(resultadosP1) = gsub("k....", "k = ",colnames(resultadosP1))
 colores = c('red', 'blue', 'red', 'blue'); corrimientos = as.numeric(gsub('k = ', '', colnames(resultadosP1)))
 par(mfrow = c(1,2),mar = c(5.1,4.1,4.1,0))
 plot(x = NULL, y = NULL, ylim = range(resultadosP1), xlim = range(corrimientos), main = 'Comparación ARL (n = 3)',
-     ylab = 'Tiempo de alerta', xlab = TeX('Corrimiento ($k \\times \\sigma$)'),cex.lab = 0.8)
+     ylab = 'Tiempo de alerta', xlab = TeX('Corrimiento ($\\sigma_1 = k \\times \\sigma_0$)'),cex.lab = 0.8)
 abline(v = seq(1, 3, by = 0.1), col = 'gray', lwd = 0.8, lty = 'dashed')
 mtext(bquote(bold('El proceso estable N(0,1)')), side = 3, line = 0.5,adj = 0.5, cex = 0.8, col = 'darkgray')
 for (i in 1:2){
@@ -65,7 +65,7 @@ for (i in 1:2){
 legend('topright',legend = c('Carta R', 'Carta S'), col = colores[1:2], lty = 'solid',bty = 'n', horiz = T)
 par(mar = c(5.1,1.5,4.1,2.1))
 plot(x = NULL, y = NULL, ylim = range(resultadosP1), xlim = range(corrimientos),
-     main = 'Comparación ARL (n = 10)', yaxt = 'n', xlab = TeX('Corrimiento ($k \\times \\sigma$)'), cex.lab = 0.8)
+     main = 'Comparación ARL (n = 10)', yaxt = 'n', xlab = TeX('Corrimiento ($\\sigma_1 = k \\times \\sigma_0$)'), cex.lab = 0.8)
 abline(v = seq(1, 3, by = 0.1), col = 'gray', lwd = 0.8, lty = 'dashed')
 mtext(bquote(bold('El proceso estable es N(0,1)')), side = 3, line = 0.5, adj = 0.5, cex = 0.8, col = 'darkgray')
 for (i in 3:4){
@@ -82,7 +82,7 @@ legend('topright',legend = c('Carta R', 'Carta S'), col = colores[1:2], lty = 's
 par(mfrow = c(1,2), mar = c(5.1,4.1,4.1,0))
 colores = c('red','red','blue', 'blue')
 plot(x = NULL, y = NULL, ylim = range(resultadosP1), xlim = range(corrimientos),
-     main = 'ARL Carta R', ylab = 'Tiempo de alerta',xlab = TeX('Corrimiento ($k \\times \\sigma$)'),cex.lab = 0.8)
+     main = 'ARL Carta R', ylab = 'Tiempo de alerta',xlab = TeX('Corrimiento ($\\sigma_1 = k \\times \\sigma_0$)'),cex.lab = 0.8)
 abline(v = seq(1, 3, by = 0.1), col = 'gray', lwd = 0.8, lty = 'dashed')
 mtext(bquote(bold('El proceso estable dsitribuye N(0,1)')), side = 3, line = 0.5,
       adj = 0.5, cex = 0.8, col = 'darkgray')
@@ -93,7 +93,7 @@ for (i in c(1,3)){
 legend('topright',legend = c('n = 3', 'n = 10'), col = c('red', 'blue'), lty = 'solid',bty = 'n', horiz = T)
 par(mar = c(5.1,1.5,4.1,2.1))
 plot(x = NULL, y = NULL, ylim = range(resultadosP1), xlim = range(corrimientos),main = 'ARL Carta S', yaxt = 'n',
-     xlab = TeX('Corrimiento ($k \\times \\sigma$)'), cex.lab = 0.8)
+     xlab = TeX('Corrimiento ($\\sigma_1 = k \\times \\sigma_0$)'), cex.lab = 0.8)
 abline(v = seq(1, 3, by = 0.1), col = 'gray', lwd = 0.8, lty = 'dashed')
 mtext(bquote(bold('El proceso estable distribuye N(0,1)')), side = 3, line = 0.5, adj = 0.5, cex = 0.8, col = 'darkgray')
 for (i in c(2,4)){
@@ -107,6 +107,31 @@ legend('topright',legend = c('n = 3', 'n = 10'), col = c('red', 'blue'), lty = '
 #### Ejercicio 2:
 
 Sea $X \sim N(\mu, \sigma)$ una característica de calidad. Se sabe que los valores objetivo de los parámetros del proceso son $\mu = \mu_0$ y $\sigma = \sigma_0$. Construir las curvas OC de la carta $S^2$ con límites de probabilidad. Interpretar los resultados
+
+> \small Recordemos que los límites de probabilidad de una carta de control $S^2$ se calculan usando la distribución chi-cuadrada ($UCL = \frac{\sigma^2_0}{n-1} \chi^2_{(1 - \alpha / 2;\,\,\, n -1)}$ y $LCL = \frac{\sigma^2_0}{n-1} \chi^2_{(\alpha / 2;\,\,\, n -1)}$). Lo que nos interesa calcular es la probabilidad $P(LCL < S^2 < UCL | \sigma^2 = \sigma^2_1)$ y como la variable aleatoria definida como $\frac{(n-1)S^2}{\sigma^2}$ tiene distirbución $\chi^2$ con $n-1$ grados de libertad podemos calcular la probai¿bilidad así: \small
+\begin{align*}
+    P\left(LCL < \frac{(n-1)S^2}{\sigma^2} < UCL | \sigma^2 = \sigma^2_1\right) &= P\left(LCL < \frac{(n-1)S^2}{\sigma^2_1} < UCL\right)\\
+    &= P\left(\frac{(n-1)LCL}{\sigma^2_1} < S^2 < \frac{(n-1)UCL}{\sigma^2_1}\right) \\
+    &= P\left(\chi^2_{(n-1)} < \frac{(n-1)UCL}{\sigma^2_1}\right) - P\left(\chi^2_{(n-1)} < \frac{(n-1)LCL}{\sigma^2_1}\right)
+\end{align*} Y calculando estas probabilidades podremos graficar las curvas OC, con el fin de realizar esta operación de forma más sencilla se crea la siguiente función en R:
+
+```{r Ocs2, code = readLines('Funciones/OCs2.R'), size = 'footnotesize' }
+```
+
+```{r OCs2Application, fig.width= 8,echo = FALSE, warning=FALSE}
+source('Funciones/OCs2.R')
+par(mar = c(5,5,4,4)); colores = c('red', 'blue', 'darkgreen', 'orange')
+plot(x = NULL, y = NULL, ylim = c(0,1), xlim = c(1,6),main = TeX('\\textbf{Curvas OC para carta} ${S^2}$'),
+     xlab = TeX('Corrimiento ($\\sigma^2_1 = k \\times \\sigma_0^2$)'),ylab = TeX('$\\beta$'), cex.axis = 0.8,
+     cex.lab = 0.7)
+legend(x = "right",inset = c(-0.135, 0), col = colores, lwd = 2, xpd = TRUE, bty = 'n', cex = 0.6,
+       legend = c('\nn = 5,10,\n     15,20', '\nn = 25,30,\n     25,40','\nn = 45,50,\n     55,60','\nn = 65,70,\n     75,80'))
+mtext(bquote(bold('El proceso estable distribuye N(0,1)')), side = 3, line = 0.5, adj = 0.5, cex = 0.8, col = 'darkgray')
+for (n in 1:16){curve(expr = OCs2(n * 5, corrimiento = x),from = 1,to = 6, add = T, col = rep(colores, each = 4)[n])}
+abline(v = seq(1, 6, by = 0.5), col = 'gray', lty = 'dashed');abline(h = seq(0,1, by = 0.1), col = 'gray', lty = 'dashed')
+```
+
+> \small Note que el incremento en el tamaño de los subgrupos racionales se realizo en múltiplos de 5 a cambio de obtener un gráfico más entendible y útil. Respecto al gráfico como tal, vemos que la carta $S^2$ es más efectiva para muestras lo suficientemente grandes y además de esto, vemos también que a partir de tamaños de alrededor de 50 no es realmente productivo intentar aumentar $n$ pues la relación costo-beneficio podría no ser óptima. Finalmente, revisando el gráfico nos damos cuenta que para corrimientos $\sigma^2_1 = 1.5 \,\, \sigma^2_0$ se obtiene una probabilidad de detectar el cambio en el siguiente subgrupo racional de más del 50\% para $n > 15$ por lo que sería recomensable usar esta carta para procesos en que se permitan tomar más de 15 muestras.
 
 #### Ejercicio 3:
 
