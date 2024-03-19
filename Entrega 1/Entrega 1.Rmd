@@ -48,7 +48,7 @@ Sea $X \sim N(\mu, \sigma)$ una característica de calidad. Mediante simulacione
 > \small Tenga en cuenta que la salida de la función es un vector con los valores de los tiempos en que se detecto una señal dados los límites y la línea central correspondientes al proceso en control (El proceso en control se definió con $\mu = 0$, $\sigma = 1$ y además para cada uno se tomaron m = 1000 muestras de tiempos en que se generó una alerta). Los resultados para diferentes corrimientos se grafican a continuación:
 
 
-```{r echo = FALSE,fig.height=4, fig.width = 12, fig.cap ='Comparación de ARL entre cartas R y S para n = 3, 10.'}
+```{r echo = FALSE,fig.height=4.5, fig.width = 12, fig.cap ='Comparación de ARL entre cartas R y S para n = 3, 10.'}
 library(latex2exp)
 resultadosP1 = read.csv('Resultados/Punto 1', row.names = 1)
 colnames(resultadosP1) = gsub("k....", "k = ",colnames(resultadosP1))
@@ -60,6 +60,7 @@ abline(v = seq(1, 3, by = 0.1), col = 'gray', lwd = 0.8, lty = 'dashed')
 mtext(bquote(bold('El proceso estable N(0,1)')), side = 3, line = 0.5,adj = 0.5, cex = 0.8, col = 'darkgray')
 for (i in 1:2){
   lines(x = corrimientos, y = resultadosP1[i,], col = colores[i], lwd = 1.5)
+  segments(x0 = corrimientos, y0 = as.numeric(resultadosP1[i,] - 1), x1 = corrimientos, y1 = as.numeric(resultadosP1[i,] + 1), col = colores[i], lty = 'solid')
 }
 
 legend('topright',legend = c('Carta R', 'Carta S'), col = colores[1:2], lty = 'solid',bty = 'n', horiz = T)
@@ -70,6 +71,7 @@ abline(v = seq(1, 3, by = 0.1), col = 'gray', lwd = 0.8, lty = 'dashed')
 mtext(bquote(bold('El proceso estable es N(0,1)')), side = 3, line = 0.5, adj = 0.5, cex = 0.8, col = 'darkgray')
 for (i in 3:4){
   lines(x = corrimientos, y = resultadosP1[i,], col = colores[i], lwd = 1.5)
+  segments(x0 = corrimientos, y0 = as.numeric(resultadosP1[i,] - 1), x1 = corrimientos, y1 = as.numeric(resultadosP1[i,] + 1), col = colores[i], lty = 'solid')
 }
 legend('topright',legend = c('Carta R', 'Carta S'), col = colores[1:2], lty = 'solid', bty = 'n', horiz = T)
 ```
@@ -78,7 +80,7 @@ legend('topright',legend = c('Carta R', 'Carta S'), col = colores[1:2], lty = 's
 
 > \small Se tomaron 81 corrimientos a intervalos regulares desde 1 hasta 3 por lo que una tabla no sería útil para analizar la información. Para $n = 3$ a la carta $R$ le toma, en promedio, más tiempo para producir falsas alarmas para un proceso estable mientras que para los corrimientos de $1.1 \times \sigma$ en adelante, la carta $R$ también tiende a tardar menos en dar una alarma verdadera. Por otro lado, la carta $S$ para un tamaño de subgrupos racionales de 10 tarda en promedio más tiempo que la carta $R$ para dar falsas alarmas y en cuanto a alarmas verdaderas no parece diferenciarse demasiado respecto a la carta $R$. 
 
-```{r echo = FALSE,fig.height=4, fig.width = 12, fig.cap ='Comparación de ARL para cada carta con n = 3, 10'}
+```{r echo = FALSE,fig.height=4.5, fig.width = 12, fig.cap ='Comparación de ARL para cada carta con n = 3, 10'}
 par(mfrow = c(1,2), mar = c(5.1,4.1,4.1,0))
 colores = c('red','red','blue', 'blue')
 plot(x = NULL, y = NULL, ylim = range(resultadosP1), xlim = range(corrimientos),
@@ -118,7 +120,7 @@ Sea $X \sim N(\mu, \sigma)$ una característica de calidad. Se sabe que los valo
 ```{r Ocs2, code = readLines('Funciones/OCs2.R'), size = 'footnotesize' }
 ```
 
-```{r OCs2Application, fig.width= 8,echo = FALSE, warning=FALSE}
+```{r OCs2Application, fig.cap = 'Curvas de operación característica para carta S²',fig.width= 8,echo = FALSE, warning=FALSE}
 source('Funciones/OCs2.R')
 par(mar = c(5,5,4,4)); colores = c('red', 'blue', 'darkgreen', 'orange')
 plot(x = NULL, y = NULL, ylim = c(0,1), xlim = c(1,6),main = TeX('\\textbf{Curvas OC para carta} ${S^2}$'),
@@ -137,6 +139,141 @@ for (n in 1:16){curve(expr = OCs2(n * 5, corrimiento = x),from = 1,to = 6, add =
 #### Ejercicio 3:
 
 Sea $X \sim N(\mu_0, \sigma_0)$ una característica de calidad. Construya la carta $\bar{X}$ para el monitoreo de la media del proceso. Genere 10 muestras de tamaño $n$ provenientes de $X$, de tal modo que la media muestral de ninguna de ellas caiga fuera de los límites de control. A partir del undécimo momento de monitoreo se pide generar muestras del mismo tamaño $n$ provenientes de una distribución normal con media $\mu_1 = \mu_0 + k\sigma_0$ y $\sigma_1 = \sigma_0$ (con $k = 1,0$) hasta que la carta emita una señal por primera vez. Si se asume que el proceso caracterizado por $X$ es estable y que se desconoce el momento en el cual se produjo el incremento en el nivel medio, ¿en qué muestra ocurrió el cambio en la media del proceso más probablemente?
+
+> \small Tal como se pide en el ejercicio, se plantea el siguiente algoritmo en R para k = 1.
+
+```{r Punto3k1,size = 'footnotesize'}
+# Parámetros
+mu_0 <- 0; sigma_0 <- 1; k <- 1; n <- 5        
+LCL <- mu_0 - 3 * (sigma_0 / sqrt(n)); UCL <- mu_0 + 3 * (sigma_0 / sqrt(n))  
+
+# Muestras
+generar_muestra <- function(mu, sigma, size) {
+  return(rnorm(size, mean = mu, sd = sigma))
+}
+
+# Primeras 10 muestras 
+muestras <- list()
+for (i in 1:10) {
+  muestra <- generar_muestra(mu_0, sigma_0, n)
+  media_muestra <- mean(muestra)
+  muestras[[i]] <- muestra
+}
+
+
+#  muestra num11 en adelante con cambio en la media del proceso
+muestra_num <- 11
+set.seed(13)
+while (TRUE) {
+  muestra <- generar_muestra(mu_0 + k * sigma_0, sigma_0, n)
+  media_muestra <- mean(muestra)
+  muestras[[muestra_num]] <- muestra
+  if (media_muestra < LCL || media_muestra > UCL) {
+    cat("Señal fuera de los límites de control en la muestra", muestra_num, "\n")
+    break
+  }
+  muestra_num <- muestra_num + 1
+}
+```
+
+```{r, echo = FALSE}
+cat("La carta dio señal en el tiempo", muestra_num, "\n")
+```
+
+
+```{r, fig.cap = 'Carta X barra (Con k = 1)',echo = FALSE, fig.width=10}
+medias <- sapply(muestras, mean)
+# Carta X̅
+plot(NULL, xlim = c(1, muestra_num), ylim = c(min(LCL, mu_0 + k * sigma_0, UCL) - 2 * sigma_0, max(LCL, mu_0 + k * sigma_0, UCL) + 2 * sigma_0), 
+     xlab = "Número de muestra", ylab = "Media muestral", main = TeX("Carta $\\bar{X}$ para monitoreo de la media del proceso"), type = "n")
+abline(v = 10, col = 'gray', lty = 3, lwd = 1.5)
+abline(h = c(mu_0, LCL, UCL), col = c("red", "blue", "blue"), lty = 2)
+for (i in 1:(muestra_num )) {
+  points(rep(i, n), muestras[[i]], col = "blue", pch = '*', cex = 0.6)
+}
+mtext(TeX('\\textbf{Para un corrimiento $\\mu_0 = \\mu_1 +\\, \\sigma_0$ ($k = 1$) con $n = 5$}'), side = 3, line = 0.5,adj = 0.5, cex = 0.8, col = 'darkgray')
+lines(1:muestra_num, medias, col = "darkgreen", pch = 19, type = 'b', cex = 0.7)
+```
+> \small Y para $k = 2$ simplemente se cambia este valor en los parámetros establecidos al inicio del algoritmo. Obteniendo la siguiente gráfica
+
+```{r, fig.cap = 'Carta X barra (Con k = 0))',echo = FALSE, fig.width=10}
+mu_0 <- 0; sigma_0 <- 1; k <- 0; n <- 5        
+LCL <- mu_0 - 3 * (sigma_0 / sqrt(n)); UCL <- mu_0 + 3 * (sigma_0 / sqrt(n))  
+
+# Muestras
+generar_muestra <- function(mu, sigma, size) {
+  return(rnorm(size, mean = mu, sd = sigma))
+}
+
+# Primeras 10 muestras 
+muestras <- list()
+for (i in 1:10) {
+  muestra <- generar_muestra(mu_0, sigma_0, n)
+  media_muestra <- mean(muestra)
+  muestras[[i]] <- muestra
+}
+
+
+#  muestra num11 en adelante con cambio en la media del proceso
+muestra_num <- 11
+set.seed(13)
+while (TRUE) {
+  muestra <- generar_muestra(mu_0 + k * sigma_0, sigma_0, n)
+  media_muestra <- mean(muestra)
+  muestras[[muestra_num]] <- muestra
+  if (media_muestra < LCL || media_muestra > UCL) {
+    cat("Señal fuera de los límites de control en la muestra", muestra_num, "\n")
+    break
+  }
+  muestra_num <- muestra_num + 1
+}
+
+cat("La carta dio señal en el tiempo", muestra_num, "\n")
+
+medias1 <- sapply(muestras, mean)
+# Carta X̅
+plot(NULL, xlim = c(1, muestra_num), ylim = c(min(LCL, mu_0 + k * sigma_0, UCL) - 2 * sigma_0, max(LCL, mu_0 + k * sigma_0, UCL) + 2 * sigma_0), 
+     xlab = "Número de muestra", ylab = "Media muestral", main = TeX("Carta $\\bar{X}$ para monitoreo de la media del proceso"), type = "n")
+abline(v = 10, col = 'gray', lty = 3, lwd = 1.5)
+abline(h = c(mu_0, LCL, UCL), col = c("red", "blue", "blue"), lty = 2)
+for (i in 1:(muestra_num )) {
+  points(rep(i, n), muestras[[i]], col = "blue", pch = '*', cex = 0.6)
+}
+mtext(TeX('\\textbf{Para un corrimiento $\\mu_0 = \\mu_1 +\\, \\sigma_0$ ($k = 0$) con $n = 5$}'), side = 3, line = 0.5,adj = 0.5, cex = 0.8, col = 'darkgray')
+lines(1:muestra_num, medias1, col = "darkgreen", pch = 19, type = 'b', cex = 0.7)
+```
+
+> Finalmente el momento en que más probablemente se dio el cambio en la media resultará del estimador $\hat{\tau}_{MV} = argmax_{0 \leq t < T} \left[(T - t) (\bar{\bar{X}}_{T,t} - \mu_0)^2\right]$ implementado en R así:
+
+```{r, size = 'footnotesize'}
+# Para k = 1
+Total = length(medias)
+FV = c()
+for (i in 0:(Total - 1)){
+  media_no_control = sum(medias[(i+1):Total])/(Total - i)
+  FV = c(FV,(Total-i) * (media_no_control - mu_0)^2)
+}
+```
+
+
+```{r, fig.cap = 'Gráfica función de verosimilitud para punto de cambio (k = 1,0)',echo=FALSE, fig.width=12}
+par(mfrow = c(1,2))
+plot(x = 0:(length(medias) - 1),y = FV,type = 'b', cex = 0.8,
+     main = TeX('$(T - t) (\\bar{\\bar{X}}_{T,t} - \\mu_0)^2$'), ylab = TeX('$\\tau$'), xlab = 'Tiempo')
+mtext(bquote(bold('k = 1')), side = 3, line = 0.5,adj = 0.5, cex = 0.8, col = 'darkgray')
+
+Total = length(medias1)
+FV = c()
+for (i in 0:(Total - 1)){
+  media_no_control = sum(medias1[(i+1):Total])/(Total - i)
+  FV = c(FV,(Total-i) * (media_no_control - mu_0)^2)
+}
+plot(x = 0:(length(medias1) - 1),y = FV,type = 'b', cex = 0.8,
+     main = TeX('$(T - t) (\\bar{\\bar{X}}_{T,t} - \\mu_0)^2$'), ylab = TeX('$\\tau$'), xlab = 'Tiempo')
+mtext(bquote(bold('k = 0')), side = 3, line = 0.5,adj = 0.5, cex = 0.8, col = 'darkgray')
+```
+
+> \small Vemos que la función para valores de k pequeños tiende a ser maximizada más atrás de la última media registrada en la carta, pero para valores de k más grandes tiende a maximizarse en los últimos valores de la carta.
 
 #### Ejercicio 4:
 
