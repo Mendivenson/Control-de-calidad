@@ -47,7 +47,6 @@ Sea $X \sim N(\mu, \sigma)$ una característica de calidad. Mediante simulacione
 
 > \small Tenga en cuenta que la salida de la función es un vector con los valores de los tiempos en que se detecto una señal dados los límites y la línea central correspondientes al proceso en control (El proceso en control se definió con $\mu = 0$, $\sigma = 1$ y además para cada uno se tomaron m = 1000 muestras de tiempos en que se generó una alerta). Los resultados para diferentes corrimientos se grafican a continuación:
 
-
 ```{r echo = FALSE,fig.height=4.5, fig.width = 12, fig.cap ='Comparación de ARL entre cartas R y S para n = 3, 10.'}
 library(latex2exp)
 resultadosP1 = read.csv('Resultados/Punto 1', row.names = 1)
@@ -76,9 +75,7 @@ for (i in 3:4){
 legend('topright',legend = c('Carta R', 'Carta S'), col = colores[1:2], lty = 'solid', bty = 'n', horiz = T)
 ```
 
-
-
-> \small Se tomaron 81 corrimientos a intervalos regulares desde 1 hasta 3 por lo que una tabla no sería útil para analizar la información. Para $n = 3$ a la carta $R$ le toma, en promedio, más tiempo para producir falsas alarmas para un proceso estable mientras que para los corrimientos de $1.1 \times \sigma$ en adelante, la carta $R$ también tiende a tardar menos en dar una alarma verdadera. Por otro lado, la carta $S$ para un tamaño de subgrupos racionales de 10 tarda en promedio más tiempo que la carta $R$ para dar falsas alarmas y en cuanto a alarmas verdaderas no parece diferenciarse demasiado respecto a la carta $R$. 
+> \small Se tomaron 81 corrimientos a intervalos regulares desde 1 hasta 3 por lo que una tabla no sería útil para analizar la información. Para $n = 3$ a la carta $R$ le toma, en promedio, más tiempo para producir falsas alarmas para un proceso estable mientras que para los corrimientos de $1.1 \times \sigma$ en adelante, la carta $R$ también tiende a tardar menos en dar una alarma verdadera. Por otro lado, la carta $S$ para un tamaño de subgrupos racionales de 10 tarda en promedio más tiempo que la carta $R$ para dar falsas alarmas y en cuanto a alarmas verdaderas no parece diferenciarse demasiado respecto a la carta $R$.
 
 ```{r echo = FALSE,fig.height=4.5, fig.width = 12, fig.cap ='Comparación de ARL para cada carta con n = 3, 10'}
 par(mfrow = c(1,2), mar = c(5.1,4.1,4.1,0))
@@ -110,12 +107,11 @@ legend('topright',legend = c('n = 3', 'n = 10'), col = c('red', 'blue'), lty = '
 
 Sea $X \sim N(\mu, \sigma)$ una característica de calidad. Se sabe que los valores objetivo de los parámetros del proceso son $\mu = \mu_0$ y $\sigma = \sigma_0$. Construir las curvas OC de la carta $S^2$ con límites de probabilidad. Interpretar los resultados
 
-> \small Recordemos que los límites de probabilidad de una carta de control $S^2$ se calculan usando la distribución chi-cuadrada ($UCL = \frac{\sigma^2_0}{n-1} \chi^2_{(1 - \alpha / 2;\,\,\, n -1)}$ y $LCL = \frac{\sigma^2_0}{n-1} \chi^2_{(\alpha / 2;\,\,\, n -1)}$). Lo que nos interesa calcular es la probabilidad $P(LCL < S^2 < UCL | \sigma^2 = \sigma^2_1)$ y como la variable aleatoria definida como $\frac{(n-1)S^2}{\sigma^2}$ tiene distirbución $\chi^2$ con $n-1$ grados de libertad podemos calcular la probai¿bilidad así: \small
-\begin{align*}
-    P\left(LCL < \frac{(n-1)S^2}{\sigma^2} < UCL | \sigma^2 = \sigma^2_1\right) &= P\left(LCL < \frac{(n-1)S^2}{\sigma^2_1} < UCL\right)\\
-    &= P\left(\frac{(n-1)LCL}{\sigma^2_1} < S^2 < \frac{(n-1)UCL}{\sigma^2_1}\right) \\
-    &= P\left(\chi^2_{(n-1)} < \frac{(n-1)UCL}{\sigma^2_1}\right) - P\left(\chi^2_{(n-1)} < \frac{(n-1)LCL}{\sigma^2_1}\right)
-\end{align*} Y calculando estas probabilidades podremos graficar las curvas OC, con el fin de realizar esta operación de forma más sencilla se crea la siguiente función en R:
+> \small Recordemos que los límites de probabilidad de una carta de control $S^2$ se calculan usando la distribución chi-cuadrada ($UCL = \frac{\sigma^2_0}{n-1} \chi^2_{(1 - \alpha / 2;\,\,\, n -1)}$ y $LCL = \frac{\sigma^2_0}{n-1} \chi^2_{(\alpha / 2;\,\,\, n -1)}$). Lo que nos interesa calcular es la probabilidad $P(LCL < S^2 < UCL | \sigma^2 = \sigma^2_1)$ y como la variable aleatoria definida como $\frac{(n-1)S^2}{\sigma^2}$ tiene distirbución $\chi^2$ con $n-1$ grados de libertad podemos calcular la probai¿bilidad así: \small \begin{align*}
+> P\left(LCL < \frac{(n-1)S^2}{\sigma^2} < UCL | \sigma^2 = \sigma^2_1\right) &= P\left(LCL < \frac{(n-1)S^2}{\sigma^2_1} < UCL\right)\\
+> &= P\left(\frac{(n-1)LCL}{\sigma^2_1} < S^2 < \frac{(n-1)UCL}{\sigma^2_1}\right) \\
+> &= P\left(\chi^2_{(n-1)} < \frac{(n-1)UCL}{\sigma^2_1}\right) - P\left(\chi^2_{(n-1)} < \frac{(n-1)LCL}{\sigma^2_1}\right)
+> \end{align*} Y calculando estas probabilidades podremos graficar las curvas OC, con el fin de realizar esta operación de forma más sencilla se crea la siguiente función en R:
 
 ```{r Ocs2, code = readLines('Funciones/OCs2.R'), size = 'footnotesize' }
 ```
@@ -134,7 +130,7 @@ for (n in 1:16){curve(expr = OCs2(n * 5, corrimiento = x),from = 1,to = 6, add =
 
 ```
 
-> \small Note que el incremento en el tamaño de los subgrupos racionales se realizo en múltiplos de 5 a cambio de obtener un gráfico más entendible y útil. Respecto al gráfico como tal, vemos que la carta $S^2$ es más efectiva para muestras lo suficientemente grandes y además de esto, vemos también que a partir de tamaños de alrededor de 50 no es realmente productivo intentar aumentar $n$ pues la relación costo-beneficio podría no ser óptima. Finalmente, revisando el gráfico nos damos cuenta que para corrimientos $\sigma^2_1 = 1.5 \,\, \sigma^2_0$ se obtiene una probabilidad de detectar el cambio en el siguiente subgrupo racional de más del 50\% para $n > 15$ por lo que sería recomensable usar esta carta para procesos en que se permitan tomar más de 15 muestras.
+> \small Note que el incremento en el tamaño de los subgrupos racionales se realizo en múltiplos de 5 a cambio de obtener un gráfico más entendible y útil. Respecto al gráfico como tal, vemos que la carta $S^2$ es más efectiva para muestras lo suficientemente grandes y además de esto, vemos también que a partir de tamaños de alrededor de 50 no es realmente productivo intentar aumentar $n$ pues la relación costo-beneficio podría no ser óptima. Finalmente, revisando el gráfico nos damos cuenta que para corrimientos $\sigma^2_1 = 1.5 \,\, \sigma^2_0$ se obtiene una probabilidad de detectar el cambio en el siguiente subgrupo racional de más del 50% para $n > 15$ por lo que sería recomensable usar esta carta para procesos en que se permitan tomar más de 15 muestras.
 
 #### Ejercicio 3:
 
@@ -180,7 +176,6 @@ while (TRUE) {
 cat("La carta dio señal en el tiempo", muestra_num, "\n")
 ```
 
-
 ```{r, fig.cap = 'Carta X barra (Con k = 1)',echo = FALSE, fig.width=10}
 medias <- sapply(muestras, mean)
 # Carta X̅
@@ -194,6 +189,7 @@ for (i in 1:(muestra_num )) {
 mtext(TeX('\\textbf{Para un corrimiento $\\mu_0 = \\mu_1 +\\, \\sigma_0$ ($k = 1$) con $n = 5$}'), side = 3, line = 0.5,adj = 0.5, cex = 0.8, col = 'darkgray')
 lines(1:muestra_num, medias, col = "darkgreen", pch = 19, type = 'b', cex = 0.7)
 ```
+
 > \small Y para $k = 2$ simplemente se cambia este valor en los parámetros establecidos al inicio del algoritmo. Obteniendo la siguiente gráfica
 
 ```{r, fig.cap = 'Carta X barra (Con k = 0))',echo = FALSE, fig.width=10}
@@ -243,7 +239,9 @@ mtext(TeX('\\textbf{Para un corrimiento $\\mu_0 = \\mu_1 +\\, \\sigma_0$ ($k = 0
 lines(1:muestra_num, medias1, col = "darkgreen", pch = 19, type = 'b', cex = 0.7)
 ```
 
-> Finalmente el momento en que más probablemente se dio el cambio en la media resultará del estimador $\hat{\tau}_{MV} = argmax_{0 \leq t < T} \left[(T - t) (\bar{\bar{X}}_{T,t} - \mu_0)^2\right]$ implementado en R así:
+> Finalmente el momento en que más probablemente se dio el cambio en la media resultará del estimador
+
+$\hat{\tau}_{MV} =  \underset{0 \leq t < T}{\text{argmax}} \left[(T - t) (\bar{\bar{X}}_{T,t} - \mu_0)^2\right]$ implementado en R así:
 
 ```{r, size = 'footnotesize'}
 # Para k = 1
@@ -251,25 +249,24 @@ Total = length(medias)
 FV = c()
 for (i in 0:(Total - 1)){
   media_no_control = sum(medias[(i+1):Total])/(Total - i)
-  FV = c(FV,(Total-i) * (media_no_control - mu_0)^2)
+  FV = c(FV,log((Total-i) * (media_no_control - mu_0)^2))
 }
 ```
-
 
 ```{r, fig.cap = 'Gráfica función de verosimilitud para punto de cambio (k = 1,0)',echo=FALSE, fig.width=12}
 par(mfrow = c(1,2))
 plot(x = 0:(length(medias) - 1),y = FV,type = 'b', cex = 0.8,
-     main = TeX('$(T - t) (\\bar{\\bar{X}}_{T,t} - \\mu_0)^2$'), ylab = TeX('$\\tau$'), xlab = 'Tiempo')
+     main = TeX('$ln((T - t) (\\bar{\\bar{X}}_{T,t} - \\mu_0)^2$))'), ylab = TeX('$\\tau$'), xlab = 'Tiempo')
 mtext(bquote(bold('k = 1')), side = 3, line = 0.5,adj = 0.5, cex = 0.8, col = 'darkgray')
 
 Total = length(medias1)
 FV = c()
 for (i in 0:(Total - 1)){
   media_no_control = sum(medias1[(i+1):Total])/(Total - i)
-  FV = c(FV,(Total-i) * (media_no_control - mu_0)^2)
+  FV = c(FV,log((Total-i) * (media_no_control - mu_0)^2))
 }
 plot(x = 0:(length(medias1) - 1),y = FV,type = 'b', cex = 0.8,
-     main = TeX('$(T - t) (\\bar{\\bar{X}}_{T,t} - \\mu_0)^2$'), ylab = TeX('$\\tau$'), xlab = 'Tiempo')
+     main = TeX('$ln((T - t) (\\bar{\\bar{X}}_{T,t} - \\mu_0)^2)$'), ylab = TeX('$\\tau$'), xlab = 'Tiempo')
 mtext(bquote(bold('k = 0')), side = 3, line = 0.5,adj = 0.5, cex = 0.8, col = 'darkgray')
 ```
 
@@ -277,13 +274,15 @@ mtext(bquote(bold('k = 0')), side = 3, line = 0.5,adj = 0.5, cex = 0.8, col = 'd
 
 #### Ejercicio 4:
 
-Sea $X \sim N(\mu_0, \sigma_0)$ una característica de calidad. Se pide:  
+Sea $X \sim N(\mu_0, \sigma_0)$ una característica de calidad. Se pide:\
+
+```{=tex}
 \begin{enumerate}
   \item Mediante simulaciones, establezca el comportamiento del ARL de la Carta $\bar{X}$ con límites tres sigma para observaciones normales.
   \item Genere 20 subgrupos racionales de tamaño $n = 3$ provenientes de $X$. Asúmase que el proceso es estable en cuanto a dispersión y con los subgrupos iniciales, construya la carta $\bar{X}$ como es habitual hasta verificar la estabilidad del proceso. Establezca el comportamiento del ARL para la carta que se obtiene del análisis de Fase I realizado.
   \item Repetir lo indicado en el literal (b) con 50 subgrupos racionales de tamaño $n = 3$. Comente los resultados.
 \end{enumerate}
-
+```
 #### Ejercicio 5:
 
 Calcular el ARL de la Carta $\bar{X}$ mediante cadenas de Markov. Diseñar la carta con límites de control ubicados a tres desviaciones estándar de la media y dividiendo la región de control estadístico en franjas de ancho igual a una desviación estándar.
