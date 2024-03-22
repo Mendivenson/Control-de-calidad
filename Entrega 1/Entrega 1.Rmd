@@ -143,27 +143,21 @@ Sea $X \sim N(\mu_0, \sigma_0)$ una característica de calidad. Construya la car
 mu_0 <- 0; sigma_0 <- 1; k <- 1; n <- 5        
 LCL <- mu_0 - 3 * (sigma_0 / sqrt(n)); UCL <- mu_0 + 3 * (sigma_0 / sqrt(n))  
 
-# Muestras
 generar_muestra <- function(mu, sigma, size) {
   return(rnorm(size, mean = mu, sd = sigma))
 }
 
-# Primeras 10 muestras 
-muestras <- list()
+muestras <- list()   # Primeras 10 muestras 
 for (i in 1:10) {
   muestra <- generar_muestra(mu_0, sigma_0, n)
   media_muestra <- mean(muestra)
   muestras[[i]] <- muestra
 }
 
-
-#  muestra num11 en adelante con cambio en la media del proceso
-muestra_num <- 11
-set.seed(13)
+muestra_num <- 11; set.seed(13) #  muestra num11 en adelante con cambio en la media del proceso
 while (TRUE) {
   muestra <- generar_muestra(mu_0 + k * sigma_0, sigma_0, n)
-  media_muestra <- mean(muestra)
-  muestras[[muestra_num]] <- muestra
+  media_muestra <- mean(muestra); muestras[[muestra_num]] <- muestra
   if (media_muestra < LCL || media_muestra > UCL) {
     cat("Señal fuera de los límites de control en la muestra", muestra_num, "\n")
     break
@@ -172,7 +166,7 @@ while (TRUE) {
 }
 ```
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, size = 'footnotesize'}
 cat("La carta dio señal en el tiempo", muestra_num, "\n")
 ```
 
@@ -196,27 +190,21 @@ lines(1:muestra_num, medias, col = "darkgreen", pch = 19, type = 'b', cex = 0.7)
 mu_0 <- 0; sigma_0 <- 1; k <- 0; n <- 5        
 LCL <- mu_0 - 3 * (sigma_0 / sqrt(n)); UCL <- mu_0 + 3 * (sigma_0 / sqrt(n))  
 
-# Muestras
 generar_muestra <- function(mu, sigma, size) {
   return(rnorm(size, mean = mu, sd = sigma))
 }
 
-# Primeras 10 muestras 
-muestras <- list()
+muestras <- list() # Primeras 10 muestras 
 for (i in 1:10) {
   muestra <- generar_muestra(mu_0, sigma_0, n)
   media_muestra <- mean(muestra)
   muestras[[i]] <- muestra
 }
 
-
-#  muestra num11 en adelante con cambio en la media del proceso
-muestra_num <- 11
-set.seed(13)
+muestra_num <- 11; set.seed(13) #  muestra num11 en adelante con cambio en la media del proceso
 while (TRUE) {
   muestra <- generar_muestra(mu_0 + k * sigma_0, sigma_0, n)
-  media_muestra <- mean(muestra)
-  muestras[[muestra_num]] <- muestra
+  media_muestra <- mean(muestra); muestras[[muestra_num]] <- muestra
   if (media_muestra < LCL || media_muestra > UCL) {
     cat("Señal fuera de los límites de control en la muestra", muestra_num, "\n")
     break
@@ -239,9 +227,7 @@ mtext(TeX('\\textbf{Para un corrimiento $\\mu_0 = \\mu_1 +\\, \\sigma_0$ ($k = 0
 lines(1:muestra_num, medias1, col = "darkgreen", pch = 19, type = 'b', cex = 0.7)
 ```
 
-> Finalmente el momento en que más probablemente se dio el cambio en la media resultará del estimador
-
-$\hat{\tau}_{MV} =  \underset{0 \leq t < T}{\text{argmax}} \left[(T - t) (\bar{\bar{X}}_{T,t} - \mu_0)^2\right]$ implementado en R así:
+> Finalmente el momento en que más probablemente se dio el cambio en la media resultará del estimador $\hat{\tau}_{MV} =  \underset{0 \leq t < T}{\text{argmax}} \left[(T - t) (\bar{\bar{X}}_{T,t} - \mu_0)^2\right]$ implementado en R así:
 
 ```{r, size = 'footnotesize'}
 # Para k = 1
@@ -276,13 +262,193 @@ mtext(bquote(bold('k = 0')), side = 3, line = 0.5,adj = 0.5, cex = 0.8, col = 'd
 
 Sea $X \sim N(\mu_0, \sigma_0)$ una característica de calidad. Se pide:\
 
-```{=tex}
 \begin{enumerate}
   \item Mediante simulaciones, establezca el comportamiento del ARL de la Carta $\bar{X}$ con límites tres sigma para observaciones normales.
   \item Genere 20 subgrupos racionales de tamaño $n = 3$ provenientes de $X$. Asúmase que el proceso es estable en cuanto a dispersión y con los subgrupos iniciales, construya la carta $\bar{X}$ como es habitual hasta verificar la estabilidad del proceso. Establezca el comportamiento del ARL para la carta que se obtiene del análisis de Fase I realizado.
   \item Repetir lo indicado en el literal (b) con 50 subgrupos racionales de tamaño $n = 3$. Comente los resultados.
 \end{enumerate}
+
+> \small En cuanto al punto a:
+
+> \small Se nos dice que el ARL$_{0}$ es una medida igual a $\frac{1}{P(\bar{X} > UCL \text{ o } \bar{X} < LCL \mid \mu = \mu_0)}$, y esta medida nos da un estimado de en qué número de pruebas se hallará la primera señal de alarma. Para encontrar esta probabilidad, tomamos una muestra particularmente grande de una población normal estándar, con subgrupos grandes, y contamos cuántas de estas medias en los subgrupos salen de los límites pedidos con límites tres sigma.
+
+```{r eval=FALSE, include=TRUE, size = 'footnotesize'}
+library(Matrix)
+mu_0 <- 0; sigma_0 <- 1  # Estableciendo parámetros verdaderos
+
+# Parámetros de la simulación
+n_samples <- 10000; sample_size <- 1000; control_limit <- 3      
+
+k <- seq(0, 0.18, by = 0.02)
+UCL <- mu_0 + control_limit * (sigma_0/sqrt(sample_size))
+LCL <- mu_0 - control_limit * (sigma_0/sqrt(sample_size))
+
+means <- numeric(n_samples); all <- numeric(n_samples * sample_size)
+for (i in 1:n_samples) {
+  samples <- rnorm(sample_size, mean = mu_0, sd = sigma_0)
+  means[i] <- mean(samples)
+  all[((i - 1) * sample_size + 1):(i * sample_size)] <- samples
+}
+counts <- matrix(0, nrow = n_samples, ncol = length(k))
+for (j in 1:length(k)){
+  for (i in 1:n_samples) {
+    counts[i , j] <- as.integer(means[i] + k[j] > UCL | means[i] + k[j] < LCL)
+  }}
+
+Pf <- colMeans(counts)
+ARL_0 <- 1/Pf[1]; ARL_1 <- 1/(1-Pf)
 ```
+
+> \small Para los ARL$_0$ nos da la salida con los diferentes Valores para cada k diferente y una grafica donde vemos el aumento del ARL con forme el valor de k se incrementa.
+
+      Pf <- colMeans(counts);Pf
+      [1] 0.0025 0.0118 0.0439 0.1369 0.3249 0.5646 0.7922 0.9231
+      ARL_1 <- 1/(1-Pf); ARL_1
+      [1]  1.002506  1.011941  1.045916  1.158614  1.481262  2.296739  4.812320 13.003901
+
+\begin{figure}[H]
+    \centering
+        \includegraphics[width=0.75\textwidth]{Resultados/Rplotk1.png}
+        \caption{Pruebnorm2}
+        \label{fig:Carta de control R}
+\end{figure}
+
+
+> \small Podemos ver que el ARL para una muestra no controlada mientras mas fuera de control esta (Ergo que su valor k sea mas alto) Su ARL$_1$
+Aumentara en mayor proporcion.
+
+> \small Al terminar con este codigo no da la salida: ARL$_{0}$ $[1] 370.370$ lo que nos señala que en estimado para una distribucion normal estandar lo probable es que una alrededor de el numero de media 370 se sale de control.
+
+> \small Para comprobarlo hacemos una simulacion de datos de esta distribucion hacemos que pare cuando una media sale de control y ver la media en cuanto a las medias necesarias para que se saliera de control 
+
+```{r, include = TRUE, eval = FALSE, size = 'footnotesize'}
+resultados <- numeric(length(k))
+for (z in 1:length(k)) {
+  i <- 1; jj <- numeric(n_samples)
+  while (i <= n_samples) {
+    j <- 1
+    while (j <= n_samples) {
+      Prueb <- rnorm(sample_size, mean = mu_0, sd = sigma_0)
+      if (mean(Prueb) + k[z] < LCL | mean(Prueb) + k[z] > UCL) { 
+        break  # Detiene el bucle
+      }
+      j <- j + 1
+    }
+    jj[i] <- j; i <- i + 1
+  }
+  indices <- which(jj != 0)
+  jj <- jj[indices]
+  resultados[z] <- mean(jj)
+}
+```
+
+> \small Este codigo nos da que de tantas muestras en promedio fallaron en su media numero 370 lo que comprueba el ARL$_{0}$ estimado con simulaciones.
+
+> \small Tambien podemos ver como la media con del valor en el que manda alerta la carta es mas baja mientras mayor sea el valor de K comprobando nuestros valores para ARL$_1$. Tal como lo vemos en la gráfica:
+
+\begin{figure}[H]
+    \centering
+        \includegraphics[width=0.75\textwidth]{Resultados/Rplot11.png}
+        \caption{Medias de fallo}
+        \label{fig:Carta de control R}
+\end{figure}
+
+> \small Respecto al punto b usando las especificaciones pedidas en el enunciado, repetimos exactamente el mismo proceso usado en el punto anterior solo cambiando los valores de el tamaño de muestra y el numero de muestra.
+
+> \small Nuestra primera evidencia es los resultados que nos da el codigo.
+
+      Pf <- colMeans(counts);Pf
+      [1] 0.00 0.05 0.10 0.10 0.30 0.45 0.60 0.75
+      ARL_0 <- 1/Pf[1];ARL_0
+      [1] Inf
+      ARL_1 <- 1/(1-Pf)
+      1.000000 1.052632 1.111111 1.111111 1.428571 1.818182 2.500000 4.000000
+
+> \small Podemos ver que al igual que el punto anterior su ARL$_{1}$ esta aumentando miestras mayor sea su valor k y la media del valor en que manda alerta tambien se va reduciendo mientras mayor sea el valor de k, las principales diferencias son dos
+
+\begin{enumerate}
+        \item \small Tuvimos que vernos en la obligacion de aumentar los niveles de k dado que si usabamos los mismos que en el punto anterior estos nos darian en su mayoria valores muy similares y bajos cercanos a cero.
+        \item \small Su valor para ARL$_{0}$ es indefinido esto debido a que 20 muestras no son suficientes para estimar la probabilidad de alerta mediante simulaciones.
+    \end{enumerate}
+    
+> \small Podemos ver que sigue las mismas tendencias pero sus valores se ven influenciados por lo pequeño de su numero de muestras.
+    
+> \small Respecto al literal c:
+
+> \small  Al igual que en los dos antiguos enunciados se uso el mismo codigo solo diferenciado por su tamaño y numero de muestras. vemos con sus resultado y graficas que se mantiene las tendencias con respecto al cambio de k, pero sus resultados son mas cercanos que los del punto b.
+Aunque al igual que con dicho punto este sigue sin poder aproximar un valor finito para ARL$_{0}$.
+
+\begin{figure}[H]
+    \centering
+        \includegraphics[width=0.75\textwidth]{Resultados/Rplot12.png}
+        \caption{$ARL_1$ para $n=50$}
+        \label{fig:Carta de control R}
+\end{figure}
+
+>Podemos ver que el comportamiento del ARL se mantiene para todos lo numero de muestras pero varia su acercamiento a el valor estimado.
+    
 #### Ejercicio 5:
 
 Calcular el ARL de la Carta $\bar{X}$ mediante cadenas de Markov. Diseñar la carta con límites de control ubicados a tres desviaciones estándar de la media y dividiendo la región de control estadístico en franjas de ancho igual a una desviación estándar.
+
+
+> \small Creamos la cadena de Markov utilizando las medias de muestra en la simulacion para el punto 4 hasta su primer punto donde la carta suelta una alerta. Esto para tener en la matriz de transicion el estado absorbente fijo.
+
+
+```{r, include = TRUE, eval = FALSE, size = 'footnotesize'}
+mu_1 <- mean(means); sds <- sd(means)
+UCL2 <- mu_1 + 3 * sds; LCL2 <- mu_1 - 3 * sds  # Límites de control
+franja_ancho <- sds; franja_sup <- seq(LCL2, UCL2, by = franja_ancho)  # Franjas de control
+
+vector <- 1:n_samples; datos2 <- data.frame(vector,means)
+x.lim <- c(0,n_samples); y.lim <- c(franja_sup[1]-0.01,franja_sup[7]+0.01)
+
+estados1 <- rep(0, length(means)); i <- 1
+while (i <= length(means)) {
+  if (means[i] < franja_sup[1] | means[i] > franja_sup[7]) { 
+    estados1[i] <- 4
+    break  # Detiene el bucle
+  }
+  if (means[i] > franja_sup[2] & means[i] < franja_sup[6]) { estados1[i] <- 1 }
+  if (means[i] > franja_sup[6] & means[i] < franja_sup[7]) { estados1[i] <- 2 }
+  if (means[i] > franja_sup[1] & means[i] < franja_sup[2]) { estados1[i] <- 3 }
+  i <- i + 1
+}
+indices_no_cero <- which(estados1 != 0); estados1 <- estados1[indices_no_cero]
+observed_table <- table(estados1[-length(estados1)], estados1[-1])
+#Matriz de transcision 
+T_ <- observed_table / rowSums(observed_table)
+
+T_0 <- matrix(0, nrow = 4, ncol = 4, byrow = FALSE)
+T_0[1:nrow(T_), 1:ncol(T_)] <- T_; T_0[4,4]<- 1
+
+R <- T_0[1:3, 1:3] ; I <- diag(1,nrow(R)); t1 <- rep(1, times = 3)
+R1 <- solve(I - R); tP1 <- T_0[1, 1:3]; tP2 <- T_0[2, 1:3]; tP3 <- T_0[3, 1:3] 
+
+ARL1 <- tP1 %*% R1 %*% t1
+ARL2 <- tP2 %*% R1 %*% t1
+ARL3 <- tP3 %*% R1 %*% t1; ARL1; ARL2; ARL3
+```
+
+> \small Aspectos que evidenciamos con la fabricacion de este codigo.
+
+\begin{enumerate}
+\item \small Como se puede ver en el codigo no usamos 5 areas de estado como se veria dividiendo las franjas en una desviacion de ancho, esto debido a la necesidad que en el estado 1 y 2, de las areas de riesgo su dato inmediatoa anterior no se encontraran en su mismo estado, algo que solo se cumplia tomando en cuentas dicgos dos rangos. 
+
+\item \small Otro aspecto importante es que si no existe un dato salido de control y dando alerta, la matriz inversa necesaria para sacar el ARL no existe.
+\item \small El punto anterior se liga al hecho que este codigo al hacer la operacion matricial para encontrar el ARL dado en clase no nos da una aproximacion de cuando podria dar un valor que lance la alerta si no el dato exacto donde Si que lo hizo.
+\end{enumerate}
+
+\small Tomemos como ejemplo el resultado que nos da el codigo para una muestra ARL1 = ARL2 = ARL3 = 55 (Uno para cada estado), y podemos ver la veracidad de esto con un grafico simple.
+
+\begin{figure}[H]
+    \centering
+        \includegraphics[width=0.7\textwidth]{Resultados/Rplot13.png}
+        \caption{Ejemplo markov}
+        \label{fig:Carta de control R}
+\end{figure}
+
+\small En conclusión este metodo es bueno para saber con exactitud donde dio la alerta un proceso mas no para estimarlo.
+
+
+
