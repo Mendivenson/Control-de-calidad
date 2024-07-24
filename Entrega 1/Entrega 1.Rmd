@@ -120,8 +120,11 @@ Sea $X \sim N(\mu, \sigma)$ una característica de calidad. Se sabe que los valo
 source('Funciones/OCs2.R')
 par(mar = c(5,5,4,4)); colores = c('red', 'blue', 'darkgreen', 'orange')
 plot(x = NULL, y = NULL, ylim = c(0,1), xlim = c(1,6),main = TeX('\\textbf{Curvas OC para carta} ${S^2}$'),
-     xlab = TeX('Corrimiento ($\\sigma^2_1 = k \\times \\sigma_0^2$)'),ylab = TeX('$\\beta$'), cex.axis = 0.8,
-     cex.lab = 0.7)
+     xlab = TeX('Corrimiento $k$ ($\\sigma^2_1 = \\sigma_0^2 + k$)'),ylab = TeX('$\\beta$'), cex.axis = 0.8,
+     cex.lab = 0.7, xaxt = 'n')
+
+axis(1, at = seq(1, 6, by = 1), labels = seq(0, 5, by = 1))
+
 legend(x = "right",inset = c(-0.135, 0), col = colores, lwd = 2, xpd = TRUE, bty = 'n', cex = 0.6,
        legend = c('\nn = 5,10,\n     15,20', '\nn = 25,30,\n     25,40','\nn = 45,50,\n     55,60','\nn = 65,70,\n     75,80'))
 mtext(bquote(bold('El proceso estable distribuye N(0,1)')), side = 3, line = 0.5, adj = 0.5, cex = 0.8, col = 'darkgray')
