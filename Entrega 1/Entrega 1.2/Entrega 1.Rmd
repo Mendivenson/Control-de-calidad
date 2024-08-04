@@ -318,19 +318,164 @@ kable(resultadosP4a, booktabs = TRUE) %>%
   # add_header_above(c(" " = 1, "Resultados" = 4))
 ```
 
-\small De esta forma, podemos concluir que la carta $\bar{X}$ tiene un comportamiento relativamente similar en cuanto a $ARL_0$. Sin embargo, a mayor cantidad de muestras, la carta parece tener un mejor comportamiento en general. Es decir, tarda más en dar una falsa alarma y emite una señal más rápido cuando hayan corrimientos de la media.
+\small En general, es posible concluir que para el caso de la carta $\bar{X}$ al menos teóricamente hablando siempre será preferible tomar un tamaño de muestra más grande pues aunque en el caso de $ARL_0$ siempre se tiene más o menos el mismo comportamiento sin importar el tamaño de los subgrupos racionales, en el caso del $ARL_1$ a medida que tengamos subgrupos racionales de tamaños más grandes tendremos en promedio cartas más eficientes en detectar desviaciones cada vez más pequeñas de la media.
 
 \begin{enumerate}
   \setcounter{enumi}{1}
   \item \bf \small Genere 20 subgrupos racionales de tamaño $n = 3$ provenientes de $X$. Asúmase que el proceso es estable en cuanto a dispersión y con los subgrupos iniciales, construya la carta $\bar{X}$ como es habitual hasta verificar la estabilidad del proceso. Establezca el comportamiento del ARL para la carta que se obtiene del análisis de Fase I realizado.
-\end{enumerate}
-
-
-
-\begin{enumerate}
-  \setcounter{enumi}{2}
   \item \bf \small Repetir lo indicado en el literal (b) con 50 subgrupos racionales de tamaño $n = 3$. Comente los resultados.
 \end{enumerate}
+
+\small Primero, generamos los 20 subgrupos racionales de la siguiente forma:
+
+```{r, size='footnotesize'}
+mu = 0; sigma = 1                 # Parámetros para muestra aleatoria
+n = 3; m = 20                     # Tamaño de muestra y cantidad de muestras              
+set.seed(10)                      # Semilla para replicación
+muestras = matrix(nrow = m, ncol = n)
+for (i in 1:m){
+  muestras[i,] = rnorm(n, mean = mu, sd = sigma)
+}
+```
+
+\small Note que como guardamos las muestras en forma de matriz, podemos calcular las medias y rangos de la siguiente forma:
+
+```{r, size='footnotesize'}
+medias20 = rowMeans(muestras)               # Media de cada una de las muestras
+rangos20 = apply(muestras, MARGIN = 1,      # Rango de cada una de las muestras
+               FUN = function(x) diff(range(x)))
+rango20 = mean(rangos20)                      # Media de los rangos
+media20 = mean(medias20)                      # Media de las medias
+
+d2 = 1.693                                # Constante para hacer insesgado al rango.
+
+UCL20 = media20 + (3 / sqrt(n)) * (rango20 / d2)
+LCL20 = media20 - (3 / sqrt(n)) * (rango20 / d2)
+```
+
+```{r,echo = FALSE, size='small', commment = '\t\t'}
+# Sin embargo, el rango es una estimación sesgada que debe ser corregida por d2 por lo que:
+sigma = rango20/d2
+cat(rep('=', 10), ' ESTIMACIONES CON 20 SUBGRUPOS RACIONALES ', rep('=', 10),'\n',
+    'Las estimaciones para el proceso estable son: \n',
+    '\t * Media = ', media20,'\n',
+    '\t * Rango = ', rango20, '\n',
+    '\t * Sigma = ', sigma, '\n',
+    'Y los límites de la carta estarán dados ahora por:\n',
+    '\t * LCL = ', LCL20, '\n',
+    '\t * UCL = ', UCL20, '\n', sep = '')
+
+```
+
+\small Del mismo modo, haremos este proceso para 50 subgrupos racionales en fase I:
+
+```{r, size = 'footnotesize'}
+mu = 0; sigma = 1                 # Parámetros para muestra aleatoria
+n = 3; m = 50                     # Tamaño de muestra y cantidad de muestras              
+set.seed(10)                      # Semilla para replicación
+muestras = matrix(nrow = m, ncol = n)
+for (i in 1:m){
+  muestras[i,] = rnorm(n, mean = mu, sd = sigma)
+}
+
+medias50 = rowMeans(muestras)               # Media de cada una de las muestras
+rangos50 = apply(muestras, MARGIN = 1,      # Rango de cada una de las muestras
+               FUN = function(x) diff(range(x)))
+rango50 = mean(rangos50)                      # Media de los rangos
+media50 = mean(medias50)                      # Media de las medias
+
+d2 = 1.693                                # Constante para hacer insesgado al rango.
+
+UCL50 = media50 + (3 / sqrt(n)) * (rango50 / d2)
+LCL50 = media50 - (3 / sqrt(n)) * (rango50 / d2)
+```
+
+```{r,echo = FALSE, size='small', commment = '\t\t'}
+# Sin embargo, el rango es una estimación sesgada que debe ser corregida por d2 por lo que:
+sigma = rango50/d2
+cat(rep('=', 10), ' ESTIMACIONES CON 50 SUBGRUPOS RACIONALES ', rep('=', 10),'\n',
+    'Las estimaciones para el proceso estable son: \n',
+    '\t * Media = ', media50,'\n',
+    '\t * Rango = ', rango50, '\n',
+    '\t * Sigma = ', sigma, '\n',
+    'Y los límites de la carta estarán dados ahora por:\n',
+    '\t * LCL = ', LCL50, '\n',
+    '\t * UCL = ', UCL50, '\n', sep = '')
+
+```
+
+
+\small Ahora, grafiquemos las dos cartas para observar qué puntos podemos conservar o no para la estimación:
+
+```{r echo = FALSE,fig.height=6, fig.width = 15, fig.cap ='Cartas de control X barra (Fase I)'}
+par(mfrow = c(1,2))
+
+plot(medias20, type = 'b', pch = 18, cex = 0.9, col = 'gray10',  xlab = 'Muestra',
+     ylim = c(min(min(medias20) - 0.5,LCL20),max(max(medias20) + 0.5,UCL20)),
+     ylab = 'Medias muestrales', main = latex2exp::TeX('\\textbf{Carta de control $\\bar{X}$}'))
+
+mtext(bquote(bold('Fase I (20 subgrupos)')), side = 3, line = 0.4, adj = 0.5, col = 'darkgray')
+abline(h = c(LCL20,UCL20, media20), col = c('red', 'red', 'darkblue'), 
+       lty = c('dashed', 'dashed', 'solid'))
+
+indicesOut = which(medias20 < LCL20 | medias20 > UCL20) # Los puntos que están fuera de control
+points(x = indicesOut, y = medias20[indicesOut], col = 'orange', pch = 19, cex = 0.8)
+
+plot(medias50, type = 'b', pch = 18, cex = 0.9, col = 'gray10',  xlab = 'Muestra',
+     ylim = c(min(min(medias50) - 0.5,LCL50),max(max(medias50) + 0.5,UCL50)),
+     ylab = 'Medias muestrales', main = latex2exp::TeX('\\textbf{Carta de control $\\bar{X}$}'))
+
+mtext(bquote(bold('Fase I (50 subgrupos)')), side = 3, line = 0.4, adj = 0.5, col = 'darkgray')
+abline(h = c(LCL50,UCL50, media50), col = c('red', 'red', 'darkblue'), 
+       lty = c('dashed', 'dashed', 'solid'))
+
+indicesOut = which(medias50 < LCL50 | medias50 > UCL50) # Los puntos que están fuera de control
+points(x = indicesOut, y = medias50[indicesOut], col = 'orange', pch = 19, cex = 0.8)
+```
+
+\small Como ninguna observación de la media muestral se sale de los límites de control de fase I para ninguna de las dos cartas, podemos proceder a fase II con las estimaciones ya realizadas. Esto implica que los cálculos correspondientes a los ARL para cada una de las cartas podrá ser calculado con la función `RunLengthXMod_Optimized` con el único cambio siendo que utilizaremos a las estimaciones de los parámetros en cambio de los argumentos `mu1` (media estimada) y `sigma1` (desviación estimada) obteniendo los siguientes resultados:
+
+
+```{r echo = FALSE,fig.height=6, fig.width = 11, fig.cap ='Comparación de ARL para distintos tamaños de subgrupos racionales (n = 3).'}
+library(latex2exp)
+
+ARLChartX = read.csv('Anexos/Resultados/ARL X Chart theory and stimated.csv', row.names = 1, check.names = F)
+
+colores = c('red', 'blue', 'green', 'orange')
+corrimientos = as.numeric(colnames(ARLChartX))
+plot(x = NULL, y = NULL, ylim = range(ARLChartX), xlim = c(0,2), main = TeX('\\bf{ARL carta $\\bar{X}$}'),
+     ylab = 'Tiempo de alerta', xlab = TeX('$\\sigma_1 = \\sigma_0 \\times (k + 1$)'),cex.lab = 0.8)
+abline(v = seq(0, 3, by = 0.1), col = 'gray', lwd = 0.8, lty = 'dashed')
+abline(h = seq(0, 400, by = 50), col = 'gray', lwd = 0.8, lty = 'dashed')
+mtext(bquote(bold('El proceso estable N(0,1)')), side = 3, line = 0.5,adj = 0.5, cex = 0.8, col = 'darkgray')
+for (i in 1:4){
+  color = colores[i]
+  lines(x = corrimientos, y = ARLChartX[i,], col = color, lwd = 1.5)
+}
+legend('topright',legend = rownames(ARLChartX), col = colores, lty = 'solid', bty = 'n', horiz = F)
+```
+
+\small Numéricamente representados en la siguiente tabla: 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(knitr)
+library(kableExtra)
+library(xtable)
+library(dplyr)
+
+
+resultadosP4a = t(ARLChartX[, as.character(seq(0,3, by = 0.2))])
+rownames(resultadosP4a) = paste0('k = ' ,rownames(resultadosP4a))
+
+
+kable(resultadosP4a, booktabs = TRUE) %>%
+  kable_styling(latex_options = c("striped", "hold_position")) %>%
+  column_spec(1, bold = TRUE)  %>%
+  footnote("ARL para distintos tamaños de subgrupos racionales (Carta X).", general_title = 'Tabla 3: ', footnote_as_chunk = TRUE) %>% 
+  row_spec(0, bold = TRUE) 
+```
+
+\small Si bien en el literal a de este punto se puede ver que es preferible utilizar tamaños de subgrupos racionales grandes, en estos dos literales podemos observar que también es preferible tener una cantidad de subgrupos racionales grande para la carta $\bar{X}$ ya que aunque el tamaño de muestra en este caso es relativamente pequeño para la naturaleza de la carta ($n = 3$) se observa una gran mejoría en cuanto al desempeño de la carta dcon 50 subgrupos racionales iniciales y a la con sólo 20 subgrupos racionales iniciales. Es decir, a la hora de construir una carta $\bar{X}$ la situación ideal sería tener muchos subgrupos racionales de un tamaño relativamente grande y en el caso en que los dos no puedan ser logrados simultáneamente se puede optar por sólo una de las dos condiciones.
 
 
 #### \small Ejercicio 5: Calcular el ARL de la carta $\bar{X}$ mediante cadenas de Markov. Diseñar la carta con límites de control ubicados a tres desviaciones estándar de la media y dividiendo la región de control estadístico en franjas de ancho igual a una desviación estándar.
