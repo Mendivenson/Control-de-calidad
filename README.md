@@ -11,7 +11,7 @@ En este repositorio se encuentran todas las entregas y trabajos realizados para 
 - **Entrega 1:** Cartas de control $R$, $S$, $S^2$ y $\bar{X}$ (ARL y curvas OC).
     - [**Entrega 1.1:**](Entrega%201/Entrega%201.1/Entrega%201.pdf) La primera iteración del taller con muchas correcciones por realizar.
     - [**Presentación:**](Entrega%201/Presentación%20(Punto%204).ipynb) Como actividad de la clase, se plantea hacer una presentación de un punto de la entrega para resolver dudas y corregir punto por punto el taller. En el caso de este grupo, correpsondió el punto número 4. 
-    - [**Versión 2:**](Entrega%201/Entrega%201.2/Entrega%201.pdf) La versión final del taller generada luego de recibir feedback de la actividad y de aprender de lo realizado por los compañeros de clase.
+    - [**Entrega 1.2:**](Entrega%201/Entrega%201.2/Entrega%201.pdf) La versión final del taller generada luego de recibir feedback de la actividad y de aprender de lo realizado por los compañeros de clase.
     
 
     
