@@ -9,6 +9,8 @@ En este repositorio se encuentran todas las entregas y trabajos realizados para 
 
 - [**Taller 1:**](https://github.com/Mendivenson/Control-de-calidad/blob/main/Taller%201/Taller-1.pdf) Cartas de Control $R$, $S$ y $\bar{X}$ (Para tamaños de muestra variable).
 - [**Entrega 1:**](https://github.com/Mendivenson/Control-de-calidad/blob/main/Entrega%201/Entrega-1.pdf) Cartas de control $R$, $S$, $S^2$ y $\bar{X}$ (ARL y curvas OC).
-    
-    - [**Versión 2:**](https://github.com/Mendivenson/Control-de-calidad/blob/main/Entrega%201/Entrega%201%20(Versi%C3%B3n%202)/Entrega-1.pdf) Se agregan las correcciones pertinentes hechas por el profesor.
     - [**Presentación:**](https://github.com/Mendivenson/Control-de-calidad/blob/main/Entrega%201/Presentaci%C3%B3n%20(Punto%204).ipynb) Como actividad de la clase, se plantea hacer una presentación de un punto de la entrega para resolver dudas y corregir punto por punto el taller. En el caso de este grupo, correpsondió el punto número 4. 
+    - [**Versión 2:**](https://github.com/Mendivenson/Control-de-calidad/blob/main/Entrega%201/Entrega%201%20(Versi%C3%B3n%202)/Entrega-1.pdf) Teniendo en cuenta todo lo aprendido con la actividad de la presentación, se generan los cambios correspondientes con las correcciones realizadas por el profesor.
+    
+
+    

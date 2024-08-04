@@ -1,0 +1,336 @@
+---
+title: Control Estadístico de Calidad
+authors:
+  - name: Michel Mendivenson Barragán Zabala
+    department: Departamento de Estadística
+    affiliation: Universidad Nacional de Colombia
+    email: mbarraganz@unal.edu.co
+  - name: Juan Sebastián Huertas Pirajan
+    department: Departamento de Estadística
+    affiliation: Universidad Nacional de Colombia
+    email: juhuertasp@unal.edu.co
+  - name: Diego Andres Paez Molina
+    department: Departamento de Estadística
+    affiliation: Universidad Nacional de Colombia
+    email: dpaezm@unal.edu.co
+output: 
+  rticles::arxiv_article
+header-includes:
+  # La siguiente línea es para eliminar el enumerado de las secciones declaradas con ##
+  - \setcounter{secnumdepth}{0}
+  # - usepackage{float}
+  # La siguiente línea es para eliminar el título del abstract
+  - \renewenvironment{abstract}{}{}
+  - \renewcommand{\theenumi}{\alph{enumi}}
+---
+
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center',  out.width = "\\textwidth", out.extra = "keepaspectratio=false", fig.pos = 'H')
+
+# Para habilitar la opción de cambiar el tamaño fuente del código
+def.chunk.hook  <- knitr::knit_hooks$get("chunk")
+knitr::knit_hooks$set(chunk = function(x, options) {
+  x <- def.chunk.hook(x, options)
+  ifelse(options$size != "normalsize", paste0("\n \\", options$size,"\n\n", x, "\n\n \\normalsize"), x)
+})
+```
+
+
+#### \small Ejercicio 1: Sea $X \sim N(\mu, \sigma)$ una característica de calidad. Mediante simulaciones, establezca el comportamiento del *ARL* (en control y fuera de él) de las Cartas $R$ y $S$ para observaciones normales con límites $3\sigma$ y muestras de tamaño (a) $n = 3$ y (b) $n = 10$ ¿Qué regularidades observa? \newline \newline
+
+\small Para la solución de este ejercicio se creá la siguiente función para la carta $R$:
+
+```{r Función Carta R,code = readLines('Anexos/Funciones/Run Length R.R'), size='footnotesize'}
+```
+
+
+\small Y la siguiente función para la carta $S$. De esta función, se debe tener en cuenta que se usan las expresiones $LCL = B_5 \times \sigma_0$ y $UCL = B_6 \times \sigma_0$ para los límites de control de la carta en fase II calculando $B_5$ y $B_6$ directamente:
+
+```{r Función Carta S,code = readLines('Anexos/Funciones/Run Length S.R'), size='footnotesize'}
+```
+
+\small Estas funciones muestrean mediante simulación de la distribución de la longitud de corrida de cada carta. Se toman 80 corrimientos a intervalos regulares con $k$ siendo el valor del corrimiento y $k \in [-2,0]$ (Los resultados se representarán teniendo $\sigma_1 = \sigma_0(1-k)$), tomando 50000 muestras de la distribución de la longitud de corrida de cada una de las cartas por corrimiento para calcular la media. La distribución real del proceso, sigue siendo la normal estándar. Obtenemos los siguientes resultados:
+
+```{r echo = FALSE,fig.height=4.5, fig.width = 12, fig.cap ='Comparación de ARL para distintos tamaños de muestra (Cartas S y R).'}
+library(latex2exp)
+
+ARLChartR = read.csv('Anexos/Resultados/ARL R Chart.csv', row.names = 1, check.names = F)
+ARLChartS = read.csv('Anexos/Resultados/ARL S Chart.csv', row.names = 1, check.names = F)
+
+corrimientos = as.numeric(colnames(ARLChartR))
+par(mfrow = c(1,2),mar = c(5.1,4.1,4.1,0))
+plot(x = NULL, y = NULL, ylim = range(c(ARLChartR, ARLChartS)), xlim = range(corrimientos), main = 'Comparación ARL (n = 3)',
+     ylab = 'Tiempo de alerta', xlab = TeX('$\\sigma_1 = \\sigma_0 \\times (k + 1$)'),cex.lab = 0.8)
+abline(v = seq(-2, 0, by = 0.1), col = 'gray', lwd = 0.8, lty = 'dashed')
+abline(h = seq(0, 400, by = 50), col = 'gray', lwd = 0.8, lty = 'dashed')
+mtext(bquote(bold('El proceso estable N(0,1)')), side = 3, line = 0.5,adj = 0.5, cex = 0.8, col = 'darkgray')
+lines(x = corrimientos, y = ARLChartR['n = 3',], col = 'red', lwd = 1.5)
+lines(x = corrimientos, y = ARLChartS['n = 3',], col = 'blue', lwd = 1.5)
+legend('topleft',legend = c('Carta R', 'Carta S'), col = c('red', 'blue'), lty = 'solid', bty = 'n', horiz = T)
+
+par(mar = c(5.1,1.5,4.1,2.1))
+plot(x = NULL, y = NULL, ylim = range(c(ARLChartR, ARLChartS)), xlim = range(corrimientos), main = 'Comparación ARL (n = 10)',
+     ylab = 'Tiempo de alerta',yaxt = 'n', xlab = TeX('$\\sigma_1 = \\sigma_0 \\times (k + 1$)'),cex.lab = 0.8)
+abline(v = seq(-2, 0, by = 0.1), col = 'gray', lwd = 0.8, lty = 'dashed')
+abline(h = seq(0, 400, by = 50), col = 'gray', lwd = 0.8, lty = 'dashed')
+mtext(bquote(bold('El proceso estable N(0,1)')), side = 3, line = 0.5,adj = 0.5, cex = 0.8, col = 'darkgray')
+lines(x = corrimientos, y = ARLChartR['n = 10',], col = 'red', lwd = 1.5)
+lines(x = corrimientos, y = ARLChartS['n = 10',], col = 'blue', lwd = 1.5)
+legend('topleft',legend = c('Carta R', 'Carta S'), col = c('red', 'blue'), lty = 'solid', bty = 'n', horiz = T)
+```
+
+\small De estas gráficas, es posible concluir que bajo normalidad las cartas $R$ y $S$ parecen tener un comportamiento similar para muestras de tamaño 3. Mientras que para las muestras de tamaño 10 la carta $S$ presenta mejor comportamiento.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(knitr)
+library(kableExtra)
+library(xtable)
+library(dplyr)
+# tabla = xtable(t(resultadosP1[seq(1,41,by = 4)]), # align = 'l|cccc', 
+#                digits = 2, caption = "Comparación de ARL para distintos tamaños de muestra (Cartas S y R).")
+# xtable2kable(tabla, booktabs = T)
+
+resultadosP1 = rbind(ARLChartR, ARLChartS)
+rownames(resultadosP1) = c('Carta R (n = 3)', 'Carta R (n = 10)','Carta S (n = 3)','Carta S (n = 10)')
+resultadosP1 = t(resultadosP1[, as.character(seq(-2,0, by = 0.2))])
+rownames(resultadosP1) = paste0('k = ' ,rownames(resultadosP1))
+
+
+kable(resultadosP1, booktabs = TRUE) %>%
+  kable_styling(latex_options = c("striped", "hold_position")) %>%
+  column_spec(1, bold = TRUE)  %>%
+  footnote("Comparación de ARL para distintos tamaños de muestra (Cartas S y R).", general_title = 'Tabla 1: ', footnote_as_chunk = TRUE) %>% 
+  row_spec(0, bold = TRUE,hline_after = TRUE) # %>%
+  # add_header_above(c(" " = 1, "Resultados" = 4))
+```
+
+
+#### \small Ejercicio 2: Sea $X \sim N(\mu, \sigma)$ una característica de calidad. Se sabe que los valores objetivo de los parámetros del proceso son $\mu = \mu_0$ y $\sigma = \sigma_0$. Construir las curvas OC de la carta $S^2$ con límites de probabilidad. Interpretar los resultados \newline \newline
+
+
+
+\small Recordemos que los límites de probabilidad de una carta de control $S^2$ se calculan usando la distribución chi-cuadrada ($UCL = \frac{\sigma^2_0}{n-1} \chi^2_{(1 - \alpha / 2;\,\,\, n -1)}$ y $LCL = \frac{\sigma^2_0}{n-1} \chi^2_{(\alpha / 2;\,\,\, n -1)}$), esto debido a que la variable aleatoria definida como $\frac{(n-1)S^2}{\sigma^2}$ tiene distribución $\chi^2$ con $n-1$ grados de libertad. Lo que nos interesa calcular es la probabilidad $P(LCL < S^2 < UCL | \sigma^2 = \sigma^2_1)$:
+
+\small \begin{align*}
+P\left(LCL < \frac{(n-1)S^2}{\sigma^2} < UCL | \sigma^2 = \sigma^2_1\right) &= P\left(LCL < \frac{(n-1)S^2}{\sigma^2_1} < UCL\right)\\
+&= P\left(\frac{(n-1)LCL}{\sigma^2_1} < S^2 < \frac{(n-1)UCL}{\sigma^2_1}\right) \\
+&= P\left(\chi^2_{(n-1)} < \frac{(n-1)UCL}{\sigma^2_1}\right) - P\left(\chi^2_{(n-1)} < \frac{(n-1)LCL}{\sigma^2_1}\right)
+\end{align*} 
+
+\small Y calculando estas probabilidades podremos graficar las curvas OC. Las curvas de operación característica para la carta de control $S^2$ se generarán usando la siguiente función:
+
+```{r Ocs2, code = readLines('Anexos/Funciones/OCs2.R'), size = 'footnotesize' }
+```
+
+```{r OCs2Application, fig.cap = 'Curvas de operación característica para carta S²',fig.width= 8,echo = FALSE, warning=FALSE}
+source('Anexos/Funciones/OCs2.R')
+par(mar = c(5,5,4,4)); colores = c('red', 'blue', 'darkgreen', 'orange')
+plot(x = NULL, y = NULL, ylim = c(0,1), xlim = c(0,8),main = TeX('\\textbf{Curvas OC para carta} ${S^2}$'),
+     xlab = TeX('Corrimiento $k$ ($\\sigma^2_1 = \\sigma_0^2 (k+1)$)'),ylab = TeX('$\\beta$'), cex.axis = 0.8,
+     cex.lab = 0.7)
+
+legend(x = "right",inset = c(-0.135, 0), col = colores, lwd = 2, xpd = TRUE, bty = 'n', cex = 0.6,
+       legend = c('\nn = 5,10,\n     15,20', '\nn = 25,30,\n     25,40','\nn = 45,50,\n     55,60','\nn = 65,70,\n     75,80'))
+mtext(bquote(bold('El proceso estable distribuye N(0,1)')), side = 3, line = 0.5, adj = 0.5, cex = 0.8, col = 'darkgray')
+abline(v = seq(1, 6, by = 0.5), col = 'gray', lty = 'dashed');abline(h = seq(0,1, by = 0.1), col = 'gray', lty = 'dashed')
+for (n in 1:16){curve(expr = OCs2(n * 5, corrimiento = x),from = 0,to = 8, add = T, col = rep(colores, each = 4)[n])}
+```
+
+\small El incremento en el tamaño de los subgrupos racionales se realiza en múltiplos de 5 para obtener un gráfico más entendible y útil. La carta $S^2$ demuestra ser más efectiva para muestras más grandes y además de esto, a partir de tamaños de alrededor de 50 no es realmente productivo intentar aumentar $n$ pues la relación costo-beneficio puede llegar a no ser óptima pues la mejora obtenida a cambio del aumento de $n$ no es suficiente. Finalmente, se observa que para corrimientos $\sigma^2_1 = \sigma^2_0 + 1.5$ se obtiene una probabilidad de detectar el cambio en el siguiente subgrupo racional de más del 50% para $n > 15$ por lo que esta carta es más útil para procesos en que sea posible tomar más de 15 muestras por subgrupo.
+
+#### \small Ejercicio 3: Sea $X \sim N(\mu_0, \sigma_0)$ una característica de calidad. Construya la carta $\bar{X}$ para el monitoreo de la media del proceso. Genere 10 muestras de tamaño $n$ provenientes de $X$, de tal modo que la media muestral de ninguna de ellas caiga fuera de los límites de control. A partir del undécimo momento de monitoreo se pide generar muestras del mismo tamaño $n$ provenientes de una distribución normal con media $\mu_1 = \mu_0 + k\sigma_0$ y $\sigma_1 = \sigma_0$ (con $k = 1,0$) hasta que la carta emita una señal por primera vez. Si se asume que el proceso caracterizado por $X$ es estable y que se desconoce el momento en el cual se produjo el incremento en el nivel medio, ¿en qué muestra ocurrió el cambio en la media del proceso más probablemente?  \newline \newline
+
+\small Tal como se plantea en el ejercicio, se simulan los primeros diez subgrupos muestrales de una distribución normal estándar. Es decir, nuestro valor en control de la media debería ser uno. Además, el tamaño de los subgrupos racionales será $n = 5$:
+
+```{r, size = 'footnotesize'}
+# Parámetros
+mu = 0; sigma = 1; k = 1; n = 5
+
+# Límites de la carta de control teóricos
+LCL = mu - 3 * (sigma/sqrt(n)); UCL = mu + 3 * (sigma/sqrt(n))
+
+set.seed(13)                  # Para replicabilidad
+muestras = c()                # Objeto para guardar las medidas de control
+for (i in 1:10){              # Generación de muestras bajo control
+  muestras[i] = mean(rnorm(n = n, mean = mu, sd = sigma))
+}
+
+mu = mu + k * sigma           # Cambiando la media del proceso
+media = muestras[10]
+while (media < UCL & media > LCL){
+  media = mean(rnorm(n = n, mean = mu, sd = sigma))
+  muestras = c(muestras, media)
+}
+```
+
+\small Ahora bien, para calcular el momento $t$ en que más probablemente se produjo el cambio en la medida de control es necesario revisar para que $t < T$ (Teniendo a $T$ como el valor en que la carta emitió una señal) se maximiza la función $\underset{0 \leq t < T}{\text{argmax}} \left[(T - t) (\bar{\bar{X}}_{T,t} - \mu_0)^2\right]$:
+
+```{r, size = 'footnotesize'}
+tiempo = 0:(length(muestras)-1)             # Todos los tiempos antes de la señal
+señal = length(muestras)                    # Aquí la carta dio una seña
+
+valores = c()
+for (t in tiempo){
+  Tmt = señal - t
+  mediaSeñal = 1/Tmt * sum(muestras[(t+1):señal])
+  valores = c(valores,Tmt*(mediaSeñal)^2)   # Aquí nos evitamos -mu_0 porque mu_0 = 0
+}
+```
+
+
+```{r, echo = FALSE, fig.align='center', fig.cap = 'Ejercicio para k = 1', fig.width=14}
+library(latex2exp)
+par(mfrow = c(1,2))
+
+# Gráfico de la estadística para cada tiempo
+plot(muestras, type = 'b', ylim = c(LCL,UCL), xlab = 'Tiempo',
+     ylab = TeX('\\bf${\\bar{X}}$'), main = TeX('\\bf{Carta de control $\\bar{X}$}'))
+points(y = muestras[length(muestras)], x = 12, col = 'red', pch = 15, cex = 1.2)
+abline(h = c(UCL,LCL, 0), col = c('red', 'red', 'blue'), lty = 'dashed')
+abline(v = 10, col = 'gray', lty = 'dashed', lwd = 2)
+mtext(bquote(bold('k = 1')), side = 3, line = 0.5,adj = 0.5, cex = 0.8, col = 'darkgray')
+
+# Gráfica de la función de verosimilitud
+plot(valores, type = 'b', xlab = 'Tiempo', 
+     main = 'Función de verosimilitud',
+     ylab = TeX('\\bf$(T -t) \\, (\\bar{\\bar{X}}_{T, t} - \\mu_0)^2$'))
+abline(v = tiempo[valores == max(valores)]+1, col = 'red', lty = 'dashed')
+abline(v = 10, col = 'gray', lty = 'dashed', lwd = 2)
+points(x = tiempo[valores == max(valores)]+1, y = max(valores), pch = 15, col = 'red', cex = 1.2)
+mtext(bquote(bold('k = 1')), side = 3, line = 0.5,adj = 0.5, cex = 0.8, col = 'darkgray')
+```
+
+\small Notemos que en este caso, para una desviación de una desviación estándar de la media este método parece identificar de forma correcta el tiempo en el que se presento la desviación de la media ya que en la gráfica de la derecha vemos que la función de verosimilitud se maximiza para $t = 11$ por lo que el último subgrupo racional en teoría (Y en la práctica también) fue el subgrupo 10. Ahora veamos cómo se comporta este método para la carta cuando no se han presentado desviaciones de la media (Básicamente reutilizamos el código anterior): 
+
+```{r, echo = FALSE, fig.align='center', fig.cap = 'Ejercicio para k = 0', fig.width=14}
+# Parámetros
+mu = 0; sigma = 1; k = 0; n = 5
+
+# Límites de la carta de control teóricos
+LCL = mu - 3 * (sigma/sqrt(n)); UCL = mu + 3 * (sigma/sqrt(n))
+
+set.seed(13)                  # Para replicabilidad
+muestras = c()                # Objeto para guardar las medidas de control
+for (i in 1:10){              # Generación de muestras bajo control
+  muestras[i] = mean(rnorm(n = n, mean = mu, sd = sigma))
+}
+
+mu = mu + k * sigma           # Cambiando la media del proceso
+media = muestras[10]
+while (media < UCL & media > LCL){
+  media = mean(rnorm(n = n, mean = mu, sd = sigma))
+  muestras = c(muestras, media)
+}
+
+tiempo = 0:(length(muestras)-1)             # Todos los tiempos antes de la señal
+señal = length(muestras)                    # Aquí la carta dio una seña
+
+valores = c()
+for (t in tiempo){
+  Tmt = señal - t
+  mediaSeñal = 1/Tmt * sum(muestras[(t+1):señal])
+  valores = c(valores,Tmt*(mediaSeñal)^2)   # Aquí nos evitamos -mu_0 porque mu_0 = 0
+}
+
+library(latex2exp)
+par(mfrow = c(1,2))
+
+# Gráfico de la estadística para cada tiempo
+plot(muestras, type = 'b', ylim = c(LCL,UCL), xlab = 'Tiempo',
+     ylab = TeX('\\bf${\\bar{X}}$'), main = TeX('\\bf{Carta de control $\\bar{X}$}'))
+points(y = muestras[length(muestras)], x = length(muestras), col = 'red', pch = 15, cex = 1.2)
+abline(h = c(UCL,LCL, 0), col = c('red', 'red', 'blue'), lty = 'dashed')
+abline(v = 10, col = 'gray', lty = 'dashed', lwd = 2)
+mtext(bquote(bold('k = 0')), side = 3, line = 0.5,adj = 0.5, cex = 0.8, col = 'darkgray')
+
+# Gráfica de la función de verosimilitud
+plot(valores, type = 'b', xlab = 'Tiempo', 
+     main = 'Función de verosimilitud',
+     ylab = TeX('\\bf$(T -t) \\, (\\bar{\\bar{X}}_{T, t} - \\mu_0)^2$'))
+abline(v = tiempo[valores == max(valores)]+1, col = 'red', lty = 'dashed')
+abline(v = 10, col = 'gray', lty = 'dashed', lwd = 2)
+points(x = tiempo[valores == max(valores)]+1, y = max(valores), pch = 15, col = 'red', cex = 1.2)
+mtext(bquote(bold('k = 0')), side = 3, line = 0.5,adj = 0.5, cex = 0.8, col = 'darkgray')
+```
+
+\small En este caso, la gráfica de la derecha nos dice que el momento en que parece más probable que hubiera ocurrido una posible desviación de la media es el momento en que se detecto la señal por lo que se puede justificar a esta como una herramienta útil no solamente para identificar el momento en que se presenta la desviación de la media sino también para obtener pistas de la índole de la desviación de la carta (Aleatoriedad pura o realmente un cambio en el proceso).
+
+
+
+#### \small Ejercicio 4: Sea $X \sim N(\mu_0, \sigma_0)$ una característica de calidad. Se pide:
+
+\begin{enumerate}
+  \item \bf \small Mediante simulaciones, establezca el comportamiento del ARL de la Carta $\bar{X}$ con límites tres sigma para observaciones normales.
+\end{enumerate}
+
+\small Utilizaremos una aproximación al problema similar a la presentada en el punto 1 creando una función para poder generar todos los corrimientos necesarios. En este caso, se crea la siguiente función:
+
+
+```{r Función Carta X Barra,code = readLines('Anexos/Funciones/Run Length X bar.R'), size='footnotesize'}
+```
+
+\small Note que esta función cuenta con una diferencia importante para la metodología que veniamos utilizando pues declara dos sets de parámetros como argumentos. Cuando $\mu_1 = \mu$ y $\sigma_1 = \sigma$ estaremos hablando del rendimiento teórico de la carta. En caso contrario, estaremos hablando del rendimiento de la carta haciendo estimaciones de los parámetros (`mu1` y `sigma1` son las estimaciones de la media y la desviación estándar respectivamente).
+
+\small Del mismo modo que anteriormente, se escogen 81 corrimiento $k \in [0,3]$ para generar los ARL de la carta extrayendo para cada corrimiento 50000 muestras de la longitud de corrida. Obteniendo los siguientes resultados:
+
+```{r echo = FALSE,fig.height=6, fig.width = 11, fig.cap ='Comparación de ARL para distintos tamaños de muestra (Cartas X barra).'}
+library(latex2exp)
+
+ARLChartX = read.csv('Anexos/Resultados/ARL X Chart.csv', row.names = 1, check.names = F)
+
+colores = c('red', 'blue', 'green', 'orange')
+corrimientos = as.numeric(colnames(ARLChartX))
+plot(x = NULL, y = NULL, ylim = range(ARLChartX), xlim = c(0,2), main = TeX('\\bf{ARL carta $\\bar{X}$ teórico}'),
+     ylab = 'Tiempo de alerta', xlab = TeX('$\\sigma_1 = \\sigma_0 \\times (k + 1$)'),cex.lab = 0.8)
+abline(v = seq(0, 3, by = 0.1), col = 'gray', lwd = 0.8, lty = 'dashed')
+abline(h = seq(0, 400, by = 50), col = 'gray', lwd = 0.8, lty = 'dashed')
+mtext(bquote(bold('El proceso estable N(0,1)')), side = 3, line = 0.5,adj = 0.5, cex = 0.8, col = 'darkgray')
+for (i in 1:4){
+  color = colores[i]
+  lines(x = corrimientos, y = ARLChartX[i,], col = color, lwd = 1.5)
+}
+legend('topright',legend = rownames(ARLChartX), col = colores, lty = 'solid', bty = 'n', horiz = F)
+```
+
+\small Cuyos resultados numéricos se encuentran consignados en la siguiente tabla: 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(knitr)
+library(kableExtra)
+library(xtable)
+library(dplyr)
+# tabla = xtable(t(resultadosP1[seq(1,41,by = 4)]), # align = 'l|cccc', 
+#                digits = 2, caption = "Comparación de ARL para distintos tamaños de muestra (Cartas S y R).")
+# xtable2kable(tabla, booktabs = T)
+
+
+resultadosP4a = t(ARLChartX[, as.character(seq(0,3, by = 0.2))])
+rownames(resultadosP4a) = paste0('k = ' ,rownames(resultadosP4a))
+
+
+kable(resultadosP4a, booktabs = TRUE) %>%
+  kable_styling(latex_options = c("striped", "hold_position")) %>%
+  column_spec(1, bold = TRUE)  %>%
+  footnote("ARL para distintos tamaños de muestra (Carta X).", general_title = 'Tabla 2: ', footnote_as_chunk = TRUE) %>% 
+  row_spec(0, bold = TRUE) # %>%
+  # add_header_above(c(" " = 1, "Resultados" = 4))
+```
+
+\small De esta forma, podemos concluir que la carta $\bar{X}$ tiene un comportamiento relativamente similar en cuanto a $ARL_0$. Sin embargo, a mayor cantidad de muestras, la carta parece tener un mejor comportamiento en general. Es decir, tarda más en dar una falsa alarma y emite una señal más rápido cuando hayan corrimientos de la media.
+
+\begin{enumerate}
+  \setcounter{enumi}{1}
+  \item \bf \small Genere 20 subgrupos racionales de tamaño $n = 3$ provenientes de $X$. Asúmase que el proceso es estable en cuanto a dispersión y con los subgrupos iniciales, construya la carta $\bar{X}$ como es habitual hasta verificar la estabilidad del proceso. Establezca el comportamiento del ARL para la carta que se obtiene del análisis de Fase I realizado.
+\end{enumerate}
+
+
+
+\begin{enumerate}
+  \setcounter{enumi}{2}
+  \item \bf \small Repetir lo indicado en el literal (b) con 50 subgrupos racionales de tamaño $n = 3$. Comente los resultados.
+\end{enumerate}
+
+
+#### \small Ejercicio 5: Calcular el ARL de la carta $\bar{X}$ mediante cadenas de Markov. Diseñar la carta con límites de control ubicados a tres desviaciones estándar de la media y dividiendo la región de control estadístico en franjas de ancho igual a una desviación estándar.
