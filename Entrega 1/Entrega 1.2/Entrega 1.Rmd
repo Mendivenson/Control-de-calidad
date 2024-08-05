@@ -22,6 +22,9 @@ header-includes:
   # La siguiente línea es para eliminar el título del abstract
   - \renewenvironment{abstract}{}{}
   - \renewcommand{\theenumi}{\alph{enumi}}
+  - \def\VR{\kern-\arraycolsep\strut\vrule &\kern-\arraycolsep}
+  - \def\vr{\kern-\arraycolsep & \kern-\arraycolsep}
+  - \def\HR{\rule{1.8cm}{0.4pt}}
 ---
 
 
@@ -479,3 +482,188 @@ kable(resultadosP4a, booktabs = TRUE) %>%
 
 
 #### \small Ejercicio 5: Calcular el ARL de la carta $\bar{X}$ mediante cadenas de Markov. Diseñar la carta con límites de control ubicados a tres desviaciones estándar de la media y dividiendo la región de control estadístico en franjas de ancho igual a una desviación estándar.
+
+
+\small En el caso de procesos estocásticos, una forma de estimar la matriz de transición de un proceso discreto es contando directamente la transición entre los estados y dividiendo luego por el total de la suma por filas. Por lo que para calcular la matriz de transición para la carta de control $\bar{X}$ bajo control primero simularemos el proceso así:
+
+```{r, size = 'footnotesize'}
+mu = 0; sigma = 1; n = 3;            # Media y desviación estándar del proceso y tamaño de subgrupos racionales
+L = 3; m = 50000                     # Ancho de la carta, cantidad de subgrupos racionales generados
+
+# Generación de los subgrupos racionales y cálculo de sus medias
+set.seed(1305)                       # Semilla para reproducibilidad
+medias = colMeans(matrix(rnorm(n * m), byrow = F, nrow = n))
+```
+
+\small Al revisar en qué zona de la carta se encuentra cada una de las medias descritas obtendremos una cadena de Markov con estados A, B, C o Alerta (Recuerde que Alerta también cuenta como dos veces en la zona C o dos veces en la zona A). Teniendo en cuenta que las muestras generadas son independientes las unas de las otras, podemos generar una cadena de estados larga y simplemente no contar el paso de estado Alerta a otros estados. Así pues, nos valeremos de la siguiente función para generar los estados de la cadena de Markov:
+
+
+```{r, size = 'footnotesize'}
+# Función generadora de estados:
+generadorCadena = function(medias, LAS, LAI, LCL, UCL){
+  cadena = rep(NA,length(medias))
+  estado = 'B'
+  for (i in 1:length(medias)){
+    media = medias[i]
+    if (media > LAI & media < LAS ){ # Zona B
+      estado = 'B'
+    }
+    if (media > LAS & media < UCL){ # Zona A
+      if (estado == 'A'){
+        estado = 'Alerta'
+      } else{
+        estado = 'A'
+      }
+    }
+    if (media < LAI & media > LCL){ # Zona C
+      if (estado == 'C'){
+        estado = 'Alerta'
+      } else{
+        estado = 'C'
+      }
+    }
+    if (media < LCL | media > UCL){
+      estado = 'Alerta'
+    }
+    cadena[i] = estado
+  }
+  return(cadena)
+}
+```
+
+
+\small Aplicamos esta función de la siguiente forma:
+
+
+```{r, size = 'footnotesize'}
+# Límites de control y de aviso
+UCL = mu + L * sigma / sqrt(n)       # Límite de control superior
+LCL = mu - L * sigma / sqrt(n)       # Límite de control inferior
+LAS = mu + 2 * sigma / sqrt(n)       # Límite de aviso superior
+LAI = mu - 2 * sigma / sqrt(n)       # Límite de aviso inferior 
+
+# Generando los estados de la cadena
+cadena = generadorCadena(medias, LAS, LAI, LCL, UCL)
+```
+
+\small Finalmente, estimamos la matriz de transición de la carta de control del proceso bajo control de la siguiente forma:
+
+```{r, size = 'footnotesize'}
+estados = unique(cadena)
+transitionMatrix = matrix(0, nrow = length(estados), ncol = length(estados))
+colnames(transitionMatrix) = rownames(transitionMatrix) = c('B', 'C','A','Alerta')
+anterior = 'Alerta'
+for (estado in cadena){
+    if (anterior != 'Alerta'){
+      transitionMatrix[anterior, estado] = transitionMatrix[anterior, estado] + 1 
+    }
+    anterior = estado
+}
+
+transitionMatrix[1:3,] = transitionMatrix[1:3,]/rowSums(transitionMatrix[1:3,])
+```
+
+\small Obteniendo la siguiente matriz:
+
+```{r, echo = FALSE, results='asis'}
+transitionMatrix['Alerta', 'Alerta'] = 1
+library(xtable)
+
+xt = xtable(transitionMatrix, digits = 7)
+# Personalizar el formato de la tabla
+latex_code <- print(xt, type = "latex", comment = FALSE, include.rownames = TRUE, include.colnames = TRUE,
+      hline.after = NULL, # Elimina todas las líneas horizontales
+      floating = FALSE, # Elimina el entorno flotante
+      sanitize.text.function = identity, print.results = FALSE)
+
+# Reemplazar el entorno 'tabular' por 'matrix' en el código LaTeX
+latex_code <- gsub("\\\\begin\\{tabular\\}", "\\\\bordermatrix\\{", latex_code)
+latex_code <- gsub("\\\\end\\{tabular\\}", "\\}", latex_code)
+# latex_code <- gsub("&", "", latex_code) # Elimina los & usados en tabular
+latex_code = gsub("\\{rrrrr\\}", '', latex_code)
+# latex_code <- gsub("\\\\hline", "", latex_code) # Elimina las líneas horizontales
+latex_code = gsub("\\\\\\\\", '\\\\cr', latex_code)
+latex_code <- paste0("\\begin{center}", latex_code, "\\end{center}")
+
+cat(latex_code)
+```
+
+
+\small Recuerde que debido a que las filas deberían de sumar 1 la matriz de transición se puede particionar de la siguiente forma:
+
+
+\begin{center}\bordermatrix{
+  & B & C & A & \cr 
+ B & 0.9554825 & 0.0213064 & 0.0203227 & \VR & 0.0028883 \cr 
+  C & 0.9558117 & 0 & 0.0192123 & \VR & 0.0249760 \cr 
+  A & 0.9586694 & 0.0191532 & 0 & \VR & 0.0221774 \cr 
+   &\HR&\HR&\HR&& & \HR \cr
+  & 0 & 0 & 0 & \VR & 1 \cr}
+\end{center}
+
+
+\small De la cual es posible utilizar solamente la esquina superior izquierda para la estimación del $ARL_0$ ya que si esta submatriz es R tendremos que $p'(I - R^{-1})\bf{1}$ es el ARL del proceso con probabilidades $p'$ de empezar en una zona u otra de la carta. Así pues, es posible estimar el ARL con la información que ya tenemos así:
+
+```{r, size = 'footnotesize'}
+# Escogiendo la partición R
+R = transitionMatrix[1:3,1:3]
+ARL = solve(diag(3) - R) %*% rep(1,3)
+```
+
+```{r, echo = FALSE}
+colnames(ARL) = 'ARL'
+ARL = t(ARL)
+kable(ARL) %>%
+  footnote("ARL Carta X mediante cadenas de Markov", general_title = 'Tabla 4: ', footnote_as_chunk = TRUE) %>% 
+  row_spec(0, bold = TRUE) %>% 
+  column_spec(0, bold = TRUE)
+```
+
+> *¿Qué quedó mal?* :'c
+
+<!--
+```{r, size = 'footnotesize'}
+transitionMatrix = transitionMatrix[1:3,1:3]
+probabilidades = matrix(ncol = 900, nrow = 3)
+colnames(probabilidades) = 1:900
+rownames(probabilidades) = colnames(transitionMatrix)
+
+for (x in 1:900){
+  probabilidades[,x] = ((diag(3) - matrixcalc::matrix.power(transitionMatrix, x)) %*% rep(1,3))
+}
+```
+```{r, echo = FALSE}
+select = seq(0,900, by = 50)
+select[1] = 1
+resultados = t(probabilidades[, as.character(select)])
+rownames(resultados) = paste0('RL = ' ,rownames(resultados))
+kable(resultados, booktabs = TRUE) %>%
+  kable_styling(latex_options = c("striped", "hold_position")) %>%
+  column_spec(1, bold = TRUE)  %>%
+  footnote("Probabilidad RL (Carta X)", general_title = 'Tabla 4: ', footnote_as_chunk = TRUE) %>% 
+  row_spec(0, bold = TRUE) 
+```
+
+
+\small A partir de aquí, es sencillo calcular el ARL pues al ser una media el cálculo es bastante directo. Así:
+
+
+```{r, size = 'footnotesize'}
+ARL = matrix(ncol = 3, nrow = 1)
+colnames(ARL) = colnames(transitionMatrix)
+for (i in 1:3){
+  ARL[,i] = (seq(1:900) %*% probabilidades[i,])/900
+}
+```
+
+```{r, echo = FALSE}
+kable(ARL) %>%
+  footnote("ARL Carta X mediante cadenas de Markov", general_title = 'Tabla 4: ', footnote_as_chunk = TRUE) %>% 
+  row_spec(0, bold = TRUE) 
+```
+
+\small Independientemente de si el proceso empieza estable (Zona B) con probabilidad uno o en zonas de aviso con probabilidad 1, el ARL debería ser el mismo. Siempre que el proceso este estable, porque si tuviesemos probabilidades distintas a 1 para cada zona, muy seguramente el ARL cambiaría.
+
+> ¿Esto era lo que deseaba e
+
+-->
